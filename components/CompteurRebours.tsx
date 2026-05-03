@@ -24,12 +24,18 @@ function calculerTemps(dateFin: string): Temps {
 }
 
 export default function CompteurRebours({ dateFin }: { dateFin: string }) {
-  const [temps, setTemps] = useState<Temps>(() => calculerTemps(dateFin))
+  // null = pas encore monté : le serveur rend null aussi → pas de mismatch
+  const [temps, setTemps] = useState<Temps | null>(null)
 
   useEffect(() => {
+    setTemps(calculerTemps(dateFin))
     const id = setInterval(() => setTemps(calculerTemps(dateFin)), 1000)
     return () => clearInterval(id)
   }, [dateFin])
+
+  if (!temps) {
+    return <div className="h-8" />
+  }
 
   if (temps.termine) {
     return <p className="text-sm text-gray-400 font-medium">Concours terminé</p>

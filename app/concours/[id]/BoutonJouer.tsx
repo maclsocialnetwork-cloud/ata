@@ -26,22 +26,37 @@ export default function BoutonJouer({ concoursId, estConnecte }: Props) {
     setErreur(null)
 
     try {
-      const res = await fetch('/api/quiz/verifier-acces', {
+      // Étape 1 : vérifier que l'accès est autorisé (anti-triche)
+      const resAcces = await fetch('/api/quiz/verifier-acces', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ concoursId }),
       })
 
-      const data = await res.json()
+      const dataAcces = await resAcces.json()
 
-      if (!res.ok) {
-        setErreur(data.message || 'Une erreur est survenue.')
+      if (!resAcces.ok) {
+        setErreur(dataAcces.error || 'Accès refusé.')
         return
       }
 
-      router.push(`/quiz/${data.participationId}`)
+      // Étape 2 : démarrer le quiz et créer la participation
+      const resDemarrer = await fetch('/api/quiz/demarrer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ concoursId }),
+      })
+
+      const dataDemarrer = await resDemarrer.json()
+
+      if (!resDemarrer.ok) {
+        setErreur(dataDemarrer.error || 'Impossible de démarrer le quiz.')
+        return
+      }
+
+      router.push(`/quiz/${dataDemarrer.participationId}`)
     } catch {
-      setErreur('Une erreur est survenue. Veuillez réessayer.')
+      setErreur('Une erreur réseau est survenue. Veuillez réessayer.')
     } finally {
       setChargement(false)
     }
