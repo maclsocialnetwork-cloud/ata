@@ -1,9 +1,18 @@
-import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+'use client'
 
-export default async function Navbar() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
+
+export default function Navbar() {
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user)
+    })
+  }, [])
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">

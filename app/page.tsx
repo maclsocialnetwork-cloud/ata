@@ -17,8 +17,11 @@ type Tombola = {
   id: string
   titre: string
   lot: string
+  description: string | null
   prix_ticket: number
   date_fin: string
+  photo_url: string | null
+  type_tombola: 'participation' | 'achat'
 }
 
 export default async function PageAccueil() {
@@ -42,10 +45,12 @@ export default async function PageAccueil() {
 
       supabase
         .from('tombola')
-        .select('id, titre, lot, prix_ticket, date_fin')
+        .select('id, titre, lot, description, prix_ticket, date_fin, photo_url, type_tombola')
         .eq('statut', 'active')
-        .lte('date_debut', maintenant)
-        .gte('date_fin', maintenant)
+        .or(
+          `type_tombola.eq.participation,and(type_tombola.eq.achat,date_debut.lte.${maintenant},date_fin.gte.${maintenant})`,
+        )
+        .order('type_tombola', { ascending: true })
         .order('date_fin', { ascending: true }),
 
       user
