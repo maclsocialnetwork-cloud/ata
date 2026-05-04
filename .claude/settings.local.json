@@ -6,7 +6,11 @@
       "PowerShell(Get-ChildItem \"C:\\\\projets\\\\ata\\\\app\\\\quiz\" -Recurse | ForEach-Object { $_.FullName })",
       "PowerShell(Test-Path \"C:\\\\projets\\\\ata\\\\node_modules\\\\next\"; \\(Get-ChildItem \"C:\\\\projets\\\\ata\\\\node_modules\\\\next\" -ErrorAction SilentlyContinue | Select-Object -First 5 Name\\))",
       "PowerShell(Test-Path *)",
-      "PowerShell(Split-Path *)"
+      "PowerShell(Split-Path *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\projets\\\\ata\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(npx tsc *)"
     ]
   }
 }

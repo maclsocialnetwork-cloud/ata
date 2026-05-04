@@ -304,6 +304,33 @@ CREATE POLICY "paiements: lecture propres paiements"
 
 
 -- =============================================================
+-- FONCTION RPC : tenter_gain
+-- Appelée par l'API /api/quiz/soumettre quand score = 100.
+-- Utilise FOR UPDATE pour verrouiller la ligne concours et éviter
+-- qu'un 2ème participant à 100% soit aussi déclaré gagnant.
+-- Retourne TRUE si ce participant est LE gagnant, FALSE sinon.
+-- =============================================================
+
+CREATE OR REPLACE FUNCTION tenter_gain(p_participation_id UUID, p_concours_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+  v_gagnant_trouve BOOLEAN;
+BEGIN
+  SELECT gagnant_trouve INTO v_gagnant_trouve
+    FROM concours WHERE id = p_concours_id FOR UPDATE;
+
+  IF v_gagnant_trouve = FALSE THEN
+    UPDATE concours SET gagnant_trouve = TRUE WHERE id = p_concours_id;
+    UPDATE participations SET est_gagnant = TRUE WHERE id = p_participation_id;
+    RETURN TRUE;
+  END IF;
+
+  RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
+-- =============================================================
 -- BUCKETS SUPABASE STORAGE
 -- Note : les buckets ne se créent pas en SQL standard Supabase.
 -- Utilise le Dashboard > Storage pour les créer manuellement,
