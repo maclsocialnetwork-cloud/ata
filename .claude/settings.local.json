@@ -10,7 +10,10 @@
       "Bash(Get-ChildItem -Path \"C:\\\\projets\\\\ata\" -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(Sort-Object)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\projets\\\\ata\\\\app\\\\concours\" -Recurse -Filter \"page.tsx\")",
+      "Bash(Select-Object FullName)",
+      "Bash(npm install *)"
     ]
   }
 }
