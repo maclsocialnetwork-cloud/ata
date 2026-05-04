@@ -331,6 +331,84 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
 -- =============================================================
+-- MODULE TOMBOLA (tables 8, 9, 10 + modification paiements)
+-- Voir migration_tombola.sql pour le script autonome à exécuter.
+-- =============================================================
+
+-- TABLE 8 : tombola
+CREATE TABLE IF NOT EXISTS public.tombola (
+    id                    UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    titre                 TEXT        NOT NULL,
+    description           TEXT,
+    lot                   TEXT        NOT NULL,
+    prix_ticket           NUMERIC(10, 2) NOT NULL,
+    date_debut            TIMESTAMP WITH TIME ZONE NOT NULL,
+    date_fin              TIMESTAMP WITH TIME ZONE NOT NULL,
+    statut                TEXT        NOT NULL DEFAULT 'brouillon'
+                              CHECK (statut IN ('brouillon', 'active', 'terminee')),
+    gagnant_user_id       UUID        REFERENCES public.profiles(id),
+    numero_ticket_gagnant TEXT,
+    created_at            TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.tombola ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "tombola: lecture publique si active"
+    ON public.tombola FOR SELECT
+    USING (statut = 'active');
+
+-- TABLE 9 : tombola_interet
+CREATE TABLE IF NOT EXISTS public.tombola_interet (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tombola_id  UUID NOT NULL REFERENCES public.tombola(id)   ON DELETE CASCADE,
+    user_id     UUID NOT NULL REFERENCES public.profiles(id)  ON DELETE CASCADE,
+    created_at  TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CONSTRAINT tombola_interet_unique UNIQUE (tombola_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_tombola_interet_tombola ON public.tombola_interet (tombola_id);
+
+ALTER TABLE public.tombola_interet ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "tombola_interet: lecture propres interets"
+    ON public.tombola_interet FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "tombola_interet: creation propre interet"
+    ON public.tombola_interet FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "tombola_interet: suppression propre interet"
+    ON public.tombola_interet FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- Modification paiements : participation_id nullable + colonne type + tombola_id
+ALTER TABLE public.paiements ALTER COLUMN participation_id DROP NOT NULL;
+ALTER TABLE public.paiements ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'score'
+    CHECK (type IN ('score', 'ticket'));
+ALTER TABLE public.paiements ADD COLUMN IF NOT EXISTS tombola_id UUID REFERENCES public.tombola(id);
+
+-- TABLE 10 : tickets
+CREATE TABLE IF NOT EXISTS public.tickets (
+    id              UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+    tombola_id      UUID          NOT NULL REFERENCES public.tombola(id)   ON DELETE CASCADE,
+    user_id         UUID          NOT NULL REFERENCES public.profiles(id)  ON DELETE CASCADE,
+    numero_ticket   TEXT          NOT NULL UNIQUE,
+    prix_paye       NUMERIC(10, 2) NOT NULL,
+    paiement_id     UUID          REFERENCES public.paiements(id),
+    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_tickets_tombola ON public.tickets (tombola_id);
+
+ALTER TABLE public.tickets ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "tickets: lecture propres tickets"
+    ON public.tickets FOR SELECT
+    USING (auth.uid() = user_id);
+
+
+-- =============================================================
 -- BUCKETS SUPABASE STORAGE
 -- Note : les buckets ne se créent pas en SQL standard Supabase.
 -- Utilise le Dashboard > Storage pour les créer manuellement,

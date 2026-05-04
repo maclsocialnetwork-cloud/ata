@@ -13,7 +13,11 @@
       "Bash(npx tsc *)",
       "Bash(Get-ChildItem -Path \"C:\\\\projets\\\\ata\\\\app\\\\concours\" -Recurse -Filter \"page.tsx\")",
       "Bash(Select-Object FullName)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\projets\\\\ata\" -Recurse -Depth 2)",
+      "Bash(Select-Object -Property FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "Bash(xargs grep *)"
     ]
   }
 }
