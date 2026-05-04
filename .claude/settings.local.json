@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "PowerShell(Get-ChildItem \"C:\\\\projets\\\\ata\\\\lib\" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })",
-      "PowerShell(Get-ChildItem \"C:\\\\projets\\\\ata\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\\\\04-functions\" -Name | Where-Object { $_ -match \"route|request|next\" })"
+      "PowerShell(Get-ChildItem \"C:\\\\projets\\\\ata\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\\\\04-functions\" -Name | Where-Object { $_ -match \"route|request|next\" })",
+      "PowerShell(Get-ChildItem \"C:\\\\projets\\\\ata\\\\app\\\\quiz\" -Recurse | ForEach-Object { $_.FullName })",
+      "PowerShell(Test-Path \"C:\\\\projets\\\\ata\\\\node_modules\\\\next\"; \\(Get-ChildItem \"C:\\\\projets\\\\ata\\\\node_modules\\\\next\" -ErrorAction SilentlyContinue | Select-Object -First 5 Name\\))",
+      "PowerShell(Test-Path *)",
+      "PowerShell(Split-Path *)"
     ]
   }
 }
