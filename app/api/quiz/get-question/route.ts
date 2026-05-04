@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { supabaseServiceRole } from '@/lib/supabase/service';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  // 1. Authentification
+  // 1. Authentification (client normal pour vérifier l'utilisateur)
   const supabase = await createClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -24,7 +25,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Index invalide.' }, { status: 400 });
   }
 
-  // 3. Récupérer la participation (questions_ordre + statut)
+  // 3. Récupérer la participation (client normal, l'utilisateur peut voir sa propre participation)
   const { data: participation, error: partError } = await supabase
     .from('participations')
     .select('questions_ordre, statut')
@@ -48,14 +49,15 @@ export async function GET(request: NextRequest) {
   }
   const questionId = questionsOrdre[index];
 
-  // 6. Charger la question (sans la bonne réponse)
-  const { data: question, error: qError } = await supabase
+  // 6. Charger la question (avec service_role pour contourner RLS)
+  const { data: question, error: qError } = await supabaseServiceRole
     .from('questions')
     .select('id, enonce, choix_a, choix_b, choix_c, choix_d')
     .eq('id', questionId)
     .single();
 
   if (qError || !question) {
+    console.error('[get-question] Question non trouvée', qError);
     return NextResponse.json({ error: 'Question non trouvée.' }, { status: 404 });
   }
 
