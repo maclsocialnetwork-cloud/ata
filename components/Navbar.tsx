@@ -66,6 +66,9 @@ export default function Navbar() {
 
           {userId ? (
             <>
+              <Link href="/mon-compte" className="text-sm text-gray-600 hover:text-ata-blue transition-colors hidden sm:block">
+                Mon compte
+              </Link>
               {prenom && (
                 <span className="text-sm text-gray-700 hidden sm:block">
                   Bonjour <span className="font-semibold text-ata-blue">{prenom}</span>
