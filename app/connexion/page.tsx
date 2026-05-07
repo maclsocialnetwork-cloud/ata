@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 type Onglet = 'connexion' | 'inscription'
+type Role = 'participant' | 'organisateur'
 
 function ContenuConnexion() {
   const router = useRouter()
@@ -21,6 +22,8 @@ function ContenuConnexion() {
   const [mdpConnexion, setMdpConnexion] = useState('')
 
   // Champs inscription
+  const [role, setRole] = useState<Role>('participant')
+  const [nomOrganisation, setNomOrganisation] = useState('')
   const [prenom, setPrenom] = useState('')
   const [nom, setNom] = useState('')
   const [emailInscription, setEmailInscription] = useState('')
@@ -79,6 +82,10 @@ function ContenuConnexion() {
       setErreur('Le mot de passe doit contenir au moins 6 caractères.')
       return
     }
+    if (role === 'organisateur' && !nomOrganisation.trim()) {
+      setErreur("Veuillez saisir le nom de votre organisation.")
+      return
+    }
 
     setChargement(true)
     const supabase = createClient()
@@ -87,7 +94,7 @@ function ContenuConnexion() {
       email: emailInscription,
       password: mdpInscription,
       options: {
-        data: { prenom, nom, whatsapp },
+        data: { prenom, nom, whatsapp, role, nom_organisation: nomOrganisation.trim() || null },
       },
     })
 
@@ -97,20 +104,42 @@ function ContenuConnexion() {
       return
     }
 
-    // Insérer dans la table profiles
     if (data.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        prenom,
-        nom,
-        email: emailInscription,
-        whatsapp,
+      const res = await fetch('/api/inscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: data.user.id,
+          prenom,
+          nom,
+          whatsapp,
+          role,
+          nomOrganisation: nomOrganisation.trim() || null,
+        }),
       })
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}))
+        setChargement(false)
+        setErreur(json.erreur || 'Erreur lors de la création du profil.')
+        return
+      }
     }
 
     setChargement(false)
+
+    // Redirection immédiate si session active (confirmation email désactivée)
+    if (data.session) {
+      router.push(role === 'organisateur' ? '/organisateur' : redirect)
+      router.refresh()
+      return
+    }
+
+    // Sinon, attente confirmation email
     setSucces(
-      'Compte créé avec succès ! Vérifiez votre email pour confirmer votre inscription.'
+      role === 'organisateur'
+        ? 'Compte entreprise créé ! Vérifiez votre email pour confirmer votre inscription. Votre accès sera activé après validation.'
+        : 'Compte créé avec succès ! Vérifiez votre email pour confirmer votre inscription.'
     )
   }
 
@@ -208,6 +237,55 @@ function ContenuConnexion() {
           {/* ── Onglet Inscription ── */}
           {onglet === 'inscription' && (
             <form onSubmit={handleInscription} className="space-y-4">
+
+              {/* Sélection du rôle */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Je suis…</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setRole('participant')}
+                    className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-all ${
+                      role === 'participant'
+                        ? 'border-ata-blue bg-ata-blue/5 text-ata-blue'
+                        : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="text-lg">🎯</span>
+                    <span>Un participant</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRole('organisateur')}
+                    className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-sm font-semibold transition-all ${
+                      role === 'organisateur'
+                        ? 'border-ata-orange bg-ata-orange/5 text-ata-orange'
+                        : 'border-gray-200 text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="text-lg">🏢</span>
+                    <span>Une entreprise</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Nom d'organisation (organisateur uniquement) */}
+              {role === 'organisateur' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nom de l'organisation <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={nomOrganisation}
+                    onChange={e => setNomOrganisation(e.target.value)}
+                    placeholder="Ex. : Mon Entreprise SARL"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-orange"
+                  />
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -297,7 +375,9 @@ function ContenuConnexion() {
               <button
                 type="submit"
                 disabled={chargement}
-                className="w-full bg-ata-green text-white font-semibold rounded-lg py-3 text-sm hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+                className={`w-full text-white font-semibold rounded-lg py-3 text-sm hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed mt-2 ${
+                  role === 'organisateur' ? 'bg-ata-orange' : 'bg-ata-green'
+                }`}
               >
                 {chargement ? 'Création du compte…' : 'Créer mon compte'}
               </button>
