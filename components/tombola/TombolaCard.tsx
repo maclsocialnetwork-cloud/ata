@@ -16,6 +16,7 @@ type Props = {
   estConnecte: boolean
   interessee: boolean
   totalInterets: number | null
+  isOrganisateur?: boolean
 }
 
 export default function TombolaCard({
@@ -29,6 +30,7 @@ export default function TombolaCard({
   estConnecte,
   interessee: initialInteressee,
   totalInterets,
+  isOrganisateur = false,
 }: Props) {
   const router = useRouter()
   const [interessee, setInteressee] = useState(initialInteressee)
@@ -80,8 +82,8 @@ export default function TombolaCard({
 
   return (
     <div
-      onClick={handleCardClick}
-      className="bg-white rounded-2xl shadow-md overflow-hidden flex flex-col cursor-pointer hover:shadow-lg transition-shadow"
+      onClick={isOrganisateur ? undefined : handleCardClick}
+      className={`bg-white rounded-2xl shadow-md overflow-hidden flex flex-col transition-shadow ${isOrganisateur ? 'opacity-60 grayscale-[30%]' : 'cursor-pointer hover:shadow-lg'}`}
     >
       {/* En-tête */}
       <div
@@ -137,9 +139,8 @@ export default function TombolaCard({
           </div>
         )}
 
-        {/* Bouton selon le type */}
-        {estParticipation ? (
-          // Tombola "à venir" : bouton "Intéressé" (toggle)
+        {/* Bouton selon le type — masqué pour les organisateurs */}
+        {!isOrganisateur && (estParticipation ? (
           <button
             onClick={handleInteret}
             disabled={charge}
@@ -158,14 +159,13 @@ export default function TombolaCard({
               : 'Intéressé(e) ? Connectez-vous'}
           </button>
         ) : (
-          // Tombola active : bouton "Voir cette tombola"
           <button
             onClick={handleVoirTombola}
             className="mt-auto w-full bg-ata-orange text-white font-semibold rounded-xl py-3 text-sm hover:opacity-90 transition-opacity"
           >
             Voir cette tombola
           </button>
-        )}
+        ))}
       </div>
     </div>
   )

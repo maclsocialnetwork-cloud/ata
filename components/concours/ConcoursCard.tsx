@@ -11,6 +11,7 @@ type Props = {
   date_fin: string
   duree_minutes: number
   photo_lot_url: string | null
+  isOrganisateur?: boolean
 }
 
 export default function ConcoursCard({
@@ -21,6 +22,7 @@ export default function ConcoursCard({
   date_fin,
   duree_minutes,
   photo_lot_url,
+  isOrganisateur = false,
 }: Props) {
   const router = useRouter()
   const [tempsRestant, setTempsRestant] = useState<string | null>(null)
@@ -68,7 +70,7 @@ export default function ConcoursCard({
   })()
 
   return (
-    <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+    <div className={`bg-white rounded-2xl shadow-md overflow-hidden flex flex-col transition-shadow ${isOrganisateur ? 'opacity-60 grayscale-[30%]' : 'hover:shadow-lg'}`}>
       {photo_lot_url && (
         <div className="relative w-full h-40 bg-gray-100">
           <img src={photo_lot_url} alt={titre} className="w-full h-full object-cover" />
@@ -93,12 +95,14 @@ export default function ConcoursCard({
             {tempsRestant ?? '—'}
           </p>
         </div>
-        <button
-          onClick={() => router.push(`/concours/${id}`)}
-          className="mt-4 w-full bg-ata-orange text-white text-sm font-semibold rounded-xl py-2.5 hover:opacity-90 transition-opacity"
-        >
-          Voir ce concours
-        </button>
+        {!isOrganisateur && (
+          <button
+            onClick={() => router.push(`/concours/${id}`)}
+            className="mt-4 w-full bg-ata-orange text-white text-sm font-semibold rounded-xl py-2.5 hover:opacity-90 transition-opacity"
+          >
+            Voir ce concours
+          </button>
+        )}
       </div>
     </div>
   )

@@ -65,6 +65,7 @@ export default async function PageAccueil() {
     ])
 
   const estAdmin = profilData?.role === 'admin'
+  const isOrganisateur = profilData?.role === 'organisateur'
   const tombolaIds = (tombolas ?? []).map((t) => t.id)
 
   // Intérêts de l'utilisateur connecté pour les tombolas visibles
@@ -118,6 +119,7 @@ export default async function PageAccueil() {
                     date_fin={c.date_fin}
                     duree_minutes={c.duree_minutes}
                     photo_lot_url={c.photo_lot_url}
+                    isOrganisateur={isOrganisateur}
                   />
                 ))}
               </div>
@@ -135,6 +137,7 @@ export default async function PageAccueil() {
                     estConnecte={!!user}
                     interessee={interetsUser.has(t.id)}
                     totalInterets={estAdmin ? (compteInterets[t.id] ?? 0) : null}
+                    isOrganisateur={isOrganisateur}
                   />
                 ))}
               </div>

@@ -61,11 +61,20 @@ export default async function PageOrganisateur() {
     )
   }
 
-  const { data: concoursList } = await supabaseServiceRole
-    .from('concours')
-    .select('id, titre, statut, date_debut, date_fin')
-    .eq('organisateur_id', organisateur.id)
-    .order('date_fin', { ascending: false })
+  const [{ data: concoursList }, { data: tombolaList }] = await Promise.all([
+    supabaseServiceRole
+      .from('concours')
+      .select('id, titre, statut, date_debut, date_fin')
+      .eq('organisateur_id', organisateur.id)
+      .order('date_fin', { ascending: false }),
+
+    supabaseServiceRole
+      .from('tombola')
+      .select('id, titre, lot, statut')
+      .eq('organisateur_id', organisateur.id)
+      .eq('type_tombola', 'participation')
+      .order('id', { ascending: false }),
+  ])
 
   const ids = concoursList?.map(c => c.id) ?? []
   const nbParticipationsMap: Record<string, number> = {}
@@ -89,12 +98,20 @@ export default async function PageOrganisateur() {
             <h1 className="text-2xl font-bold text-ata-blue">Tableau de bord</h1>
             <p className="text-sm text-gray-500 mt-0.5">{organisateur.nom_organisation}</p>
           </div>
-          <Link
-            href="/organisateur/concours/nouveau"
-            className="inline-flex items-center gap-2 bg-ata-orange text-white font-semibold rounded-xl px-5 py-2.5 text-sm hover:opacity-90 transition-opacity w-fit"
-          >
-            <span className="text-base">+</span> Nouveau concours
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/organisateur/concours/nouveau"
+              className="inline-flex items-center gap-2 bg-ata-orange text-white font-semibold rounded-xl px-5 py-2.5 text-sm hover:opacity-90 transition-opacity"
+            >
+              <span className="text-base">+</span> Nouveau concours
+            </Link>
+            <Link
+              href="/organisateur/tombola/nouveau"
+              className="inline-flex items-center gap-2 bg-purple-600 text-white font-semibold rounded-xl px-5 py-2.5 text-sm hover:bg-purple-700 transition-colors"
+            >
+              <span className="text-base">+</span> Tombola à venir
+            </Link>
+          </div>
         </div>
 
         {(!concoursList || concoursList.length === 0) ? (
@@ -147,6 +164,45 @@ export default async function PageOrganisateur() {
             })}
           </div>
         )}
+        {/* ── Tombolas à venir ───────────────────────────────────── */}
+        <div className="mt-10">
+          <h2 className="text-lg font-bold text-ata-blue mb-4">Mes tombolas à venir</h2>
+
+          {(!tombolaList || tombolaList.length === 0) ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
+              <p className="font-medium text-gray-500">Aucune tombola créée</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Créez une tombola à venir pour sonder l'intérêt des participants.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {tombolaList.map(t => (
+                <div
+                  key={t.id}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-ata-blue truncate">{t.titre}</h3>
+                      <span className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold bg-purple-100 text-purple-700">
+                        Participation
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1 truncate">Lot : {t.lot}</p>
+                  </div>
+                  <Link
+                    href={`/tombola/${t.id}`}
+                    className="rounded-xl border border-purple-400 text-purple-600 text-sm font-medium px-4 py-2 hover:bg-purple-50 transition-colors shrink-0"
+                  >
+                    Voir la page publique
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
       </main>
     </>
   )
