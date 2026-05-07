@@ -15,6 +15,8 @@ export default async function PageOrganisateur() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
+  console.log('1. Utilisateur connecté ?', user?.id || 'non connecté')
+
   if (!user) redirect('/connexion?redirect=/organisateur')
 
   const { data: profil } = await supabase
@@ -23,15 +25,24 @@ export default async function PageOrganisateur() {
     .eq('id', user.id)
     .single()
 
+  console.log('2. Profil utilisateur:', profil)
+
   if (!profil || (profil.role !== 'organisateur' && profil.role !== 'admin')) {
+    console.log('3. Rôle non autorisé, redirection vers /')
     redirect('/')
   }
 
-  const { data: organisateur } = await supabase
+  // Utiliser service_role pour contourner RLS
+  console.log('4. Recherche organisateur avec user_id:', user.id)
+  const { data: organisateur, error: orgError } = await supabaseServiceRole
     .from('organisateurs')
     .select('id, nom_organisation, abonnement_actif')
     .eq('user_id', user.id)
-    .single()
+    .limit(1)
+    .maybeSingle()
+
+  console.log('5. Erreur organisateur:', orgError)
+  console.log('6. Données organisateur:', organisateur)
 
   if (!organisateur) {
     return (
@@ -50,13 +61,12 @@ export default async function PageOrganisateur() {
     )
   }
 
-  const { data: concoursList } = await supabase
+  const { data: concoursList } = await supabaseServiceRole
     .from('concours')
     .select('id, titre, statut, date_debut, date_fin')
     .eq('organisateur_id', organisateur.id)
     .order('date_fin', { ascending: false })
 
-  // Compte des participations via service_role (RLS ne permet pas à l'organisateur de les lire)
   const ids = concoursList?.map(c => c.id) ?? []
   const nbParticipationsMap: Record<string, number> = {}
 
