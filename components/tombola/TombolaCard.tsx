@@ -36,14 +36,28 @@ export default function TombolaCard({
   const [charge, setCharge] = useState(false)
 
   const handleCardClick = () => {
-    router.push(
-      type_tombola === 'participation' ? `/tombola/${id}/sondage` : `/tombola/${id}`,
-    )
+    // Pour les deux types, on va vers la page détail (les tombolas participation
+    // redirigeaient vers /sondage, mais tu veux maintenant sur la carte active
+    // un bouton "Voir cette tombola". On garde toutefois la redirection différente
+    // selon le type quand on clique sur la carte elle‑même.
+    if (type_tombola === 'participation') {
+      router.push(`/tombola/${id}/sondage`)
+    } else {
+      router.push(`/tombola/${id}`)
+    }
+  }
+
+  const handleVoirTombola = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    router.push(`/tombola/${id}`)
   }
 
   const handleInteret = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (!estConnecte) { router.push('/connexion'); return }
+    if (!estConnecte) {
+      router.push('/connexion')
+      return
+    }
 
     setCharge(true)
     try {
@@ -90,22 +104,28 @@ export default function TombolaCard({
         )}
       </div>
 
-      {/* Image avec balise img classique */}
+      {/* Image */}
       {photo_url && (
         <div className="relative w-full h-40 bg-gray-100">
-          <img src={photo_url} alt={titre} className="w-full h-full object-cover" />
+          <img
+            src={photo_url}
+            alt={titre}
+            className="w-full h-full object-cover"
+          />
         </div>
       )}
 
       <div className="p-5 flex flex-col flex-1 gap-3">
-        {/* Titre + lot + description */}
+        {/* Titre + lot */}
         <div>
           <h2 className="font-bold text-ata-blue text-lg leading-snug">{titre}</h2>
           <p className="text-sm text-gray-500 mt-1 line-clamp-2">{lot}</p>
-          {description && (
-            <p className="text-xs text-gray-400 mt-1.5 line-clamp-2">{description}</p>
-          )}
         </div>
+
+        {/* Description (pour les deux types) */}
+        {description && (
+          <p className="text-xs text-gray-400 mt-1.5 line-clamp-3">{description}</p>
+        )}
 
         {/* Compte à rebours — achat uniquement */}
         {!estParticipation && (
@@ -117,26 +137,35 @@ export default function TombolaCard({
           </div>
         )}
 
-        {/* Bouton Intéressé */}
-        <button
-          onClick={handleInteret}
-          disabled={charge}
-          className={`mt-auto w-full text-center font-semibold rounded-xl py-3 text-sm transition-opacity disabled:opacity-50 ${
-            interessee
-              ? 'bg-ata-green text-white hover:opacity-90'
-              : estParticipation
-                ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                : 'bg-ata-orange text-white hover:opacity-90'
-          }`}
-        >
-          {charge
-            ? '...'
-            : interessee
+        {/* Bouton selon le type */}
+        {estParticipation ? (
+          // Tombola "à venir" : bouton "Intéressé" (toggle)
+          <button
+            onClick={handleInteret}
+            disabled={charge}
+            className={`mt-auto w-full text-center font-semibold rounded-xl py-3 text-sm transition-opacity disabled:opacity-50 ${
+              interessee
+                ? 'bg-ata-green text-white hover:opacity-90'
+                : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+            }`}
+          >
+            {charge
+              ? '...'
+              : interessee
               ? 'Intéressé(e) ✓'
               : estConnecte
-                ? 'Je suis intéressé(e)'
-                : 'Intéressé(e) ? Connectez-vous'}
-        </button>
+              ? 'Je suis intéressé(e)'
+              : 'Intéressé(e) ? Connectez-vous'}
+          </button>
+        ) : (
+          // Tombola active : bouton "Voir cette tombola"
+          <button
+            onClick={handleVoirTombola}
+            className="mt-auto w-full bg-ata-orange text-white font-semibold rounded-xl py-3 text-sm hover:opacity-90 transition-opacity"
+          >
+            Voir cette tombola
+          </button>
+        )}
       </div>
     </div>
   )

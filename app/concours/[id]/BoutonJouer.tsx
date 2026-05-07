@@ -1,18 +1,52 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface Props {
   concoursId: string
   estConnecte: boolean
+  dateDebut: string
+  dateFin: string
 }
 
-export default function BoutonJouer({ concoursId, estConnecte }: Props) {
+type Etat = 'avenir' | 'enCours' | 'termine'
+
+function calculeEtat(dateDebut: string, dateFin: string): Etat {
+  const now = new Date()
+  if (now >= new Date(dateFin)) return 'termine'
+  if (now >= new Date(dateDebut)) return 'enCours'
+  return 'avenir'
+}
+
+export default function BoutonJouer({ concoursId, estConnecte, dateDebut, dateFin }: Props) {
   const [certifie, setCertifie] = useState(false)
   const [chargement, setChargement] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
+  const [etat, setEtat] = useState<Etat>(() => calculeEtat(dateDebut, dateFin))
   const router = useRouter()
+
+  useEffect(() => {
+    setEtat(calculeEtat(dateDebut, dateFin))
+    const interval = setInterval(() => setEtat(calculeEtat(dateDebut, dateFin)), 5000)
+    return () => clearInterval(interval)
+  }, [dateDebut, dateFin])
+
+  if (etat === 'avenir') {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl px-5 py-4 text-center font-medium text-sm">
+        Ce concours n'est pas encore commencé.
+      </div>
+    )
+  }
+
+  if (etat === 'termine') {
+    return (
+      <div className="bg-gray-50 border border-gray-200 text-gray-500 rounded-xl px-5 py-4 text-center font-medium text-sm">
+        Ce concours est terminé.
+      </div>
+    )
+  }
 
   async function handleJouer() {
     if (!certifie) return
@@ -26,7 +60,6 @@ export default function BoutonJouer({ concoursId, estConnecte }: Props) {
     setErreur(null)
 
     try {
-      // Étape 1 : vérifier que l'accès est autorisé (anti-triche)
       const resAcces = await fetch('/api/quiz/verifier-acces', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,7 +73,6 @@ export default function BoutonJouer({ concoursId, estConnecte }: Props) {
         return
       }
 
-      // Étape 2 : démarrer le quiz et créer la participation
       const resDemarrer = await fetch('/api/quiz/demarrer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

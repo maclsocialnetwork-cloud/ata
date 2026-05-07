@@ -9,6 +9,7 @@ type Concours = {
   titre: string
   description: string | null
   photo_lot_url: string | null
+  date_debut: string
   date_fin: string
   organisateurs: { nom_organisation: string }[] | null
 }
@@ -23,7 +24,7 @@ export default async function PageConcours({
 
   const { data: concours } = await supabase
     .from('concours')
-    .select('id, titre, description, photo_lot_url, date_fin, organisateurs(nom_organisation)')
+    .select('id, titre, description, photo_lot_url, date_debut, date_fin, organisateurs(nom_organisation)')
     .eq('id', id)
     .single()
 
@@ -113,7 +114,12 @@ export default async function PageConcours({
               Vous avez déjà participé à ce concours.
             </div>
           ) : (
-            <BoutonJouer concoursId={id} estConnecte={!!user} />
+            <BoutonJouer
+              concoursId={id}
+              estConnecte={!!user}
+              dateDebut={c.date_debut}
+              dateFin={c.date_fin}
+            />
           )}
         </div>
       </main>

@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 type Onglet = 'connexion' | 'inscription'
 
-export default function PageConnexion() {
+function ContenuConnexion() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get('redirect') || '/'
@@ -306,5 +306,13 @@ export default function PageConnexion() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function PageConnexion() {
+  return (
+    <Suspense>
+      <ContenuConnexion />
+    </Suspense>
   )
 }

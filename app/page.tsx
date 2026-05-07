@@ -10,7 +10,10 @@ type Concours = {
   titre: string
   photo_lot_url: string | null
   organisateurs: { nom_organisation: string }[] | null
+  date_debut: string
   date_fin: string
+  duree_minutes: number
+  description: string
 }
 
 type Tombola = {
@@ -32,16 +35,15 @@ export default async function PageAccueil() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Charger concours, tombolas et profil en parallèle
+  // Charger concours (sans filtre sur date_debut), tombolas et profil en parallèle
   const [{ data: concours }, { data: tombolas }, { data: profilData }] =
     await Promise.all([
       supabase
         .from('concours')
-        .select('id, titre, photo_lot_url, organisateurs(nom_organisation), date_fin')
+        .select('id, titre, description, duree_minutes, photo_lot_url, date_debut, date_fin, organisateurs(nom_organisation)')
         .eq('statut', 'actif')
-        .lte('date_debut', maintenant)
-        .gte('date_fin', maintenant)
-        .order('date_fin', { ascending: true }),
+        .gte('date_fin', maintenant)          // seulement si pas terminé
+        .order('date_debut', { ascending: true }), // les plus proches en premier
 
       supabase
         .from('tombola')
@@ -107,7 +109,16 @@ export default async function PageAccueil() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {(concours as unknown as Concours[]).map((c) => (
-                  <ConcoursCard key={c.id} {...c} />
+                  <ConcoursCard
+                    key={c.id}
+                    id={c.id}
+                    titre={c.titre}
+                    description={c.description}
+                    date_debut={c.date_debut}
+                    date_fin={c.date_fin}
+                    duree_minutes={c.duree_minutes}
+                    photo_lot_url={c.photo_lot_url}
+                  />
                 ))}
               </div>
             )}
