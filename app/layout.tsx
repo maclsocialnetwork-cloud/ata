@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ATA — Achat Ombol Afrique",
-  description: "Plateforme de jeux concours QCM",
+  title: "ATA — Achat Tombola Afrique",
+  description: "Plateforme de jeux concours QCM et tombolas",
 };
 
 export default function RootLayout({
@@ -19,6 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${inter.variable} h-full antialiased`}>
+      <head>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=5" />
+        <link rel="shortcut icon" href="/favicon.ico?v=5" />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

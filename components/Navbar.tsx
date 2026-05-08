@@ -51,35 +51,37 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+      <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+        {/* Logo et nom */}
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <span className="text-ata-orange font-extrabold text-2xl tracking-tight">ATA</span>
-          <span className="hidden sm:block text-ata-blue text-sm font-medium">
+          <span className="inline-block text-ata-blue text-sm font-medium">
             Achat Tombola Afrique
           </span>
         </Link>
 
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm text-gray-600 hover:text-ata-blue transition-colors hidden sm:block">
+        {/* Navigation droite (wrap sur mobile) */}
+        <div className="flex flex-wrap items-center justify-end gap-3 text-sm">
+          <Link href="/" className="text-gray-600 hover:text-ata-blue transition-colors">
             Accueil
           </Link>
 
           {userId ? (
             <>
-              <Link href="/jeux" className="text-sm text-gray-600 hover:text-ata-blue transition-colors hidden sm:block">
+              <Link href="/jeux" className="text-gray-600 hover:text-ata-blue transition-colors">
                 Jeux
               </Link>
-              <Link href="/mon-compte" className="text-sm text-gray-600 hover:text-ata-blue transition-colors hidden sm:block">
+              <Link href="/mon-compte" className="text-gray-600 hover:text-ata-blue transition-colors">
                 Mon compte
               </Link>
               {prenom && (
-                <span className="text-sm text-gray-700 hidden sm:block">
+                <span className="text-gray-700 whitespace-nowrap">
                   Bonjour <span className="font-semibold text-ata-blue">{prenom}</span>
                 </span>
               )}
               <button
                 onClick={handleDeconnexion}
-                className="border border-ata-orange text-ata-orange text-sm font-semibold px-5 py-2 rounded-full hover:bg-ata-orange hover:text-white transition-colors"
+                className="border border-ata-orange text-ata-orange text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-ata-orange hover:text-white transition-colors"
               >
                 Se déconnecter
               </button>
@@ -87,7 +89,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/connexion"
-              className="bg-ata-orange text-white text-sm font-semibold px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
+              className="bg-ata-orange text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:opacity-90 transition-opacity"
             >
               Connexion
             </Link>
