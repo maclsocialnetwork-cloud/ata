@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { supabaseServiceRole } from '@/lib/supabase/service';
 
 export async function POST(request: Request) {
+  // Log pour vérifier si la variable d'environnement est chargée
+  console.log('SUPABASE_SERVICE_ROLE_KEY chargée ?', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+
   try {
     const body = await request.json();
     console.log('Body reçu:', body);
