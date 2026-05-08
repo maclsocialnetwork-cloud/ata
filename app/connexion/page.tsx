@@ -10,7 +10,7 @@ type Role = 'participant' | 'organisateur'
 function ContenuConnexion() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/'
+  const redirect = searchParams.get('redirect') || '/jeux'
 
   const [onglet, setOnglet] = useState<Onglet>('connexion')
   const [chargement, setChargement] = useState(false)

@@ -55,7 +55,7 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-2">
           <span className="text-ata-orange font-extrabold text-2xl tracking-tight">ATA</span>
           <span className="hidden sm:block text-ata-blue text-sm font-medium">
-            Achat Ombol Afrique
+            Achat Tombola Afrique
           </span>
         </Link>
 
@@ -66,6 +66,9 @@ export default function Navbar() {
 
           {userId ? (
             <>
+              <Link href="/jeux" className="text-sm text-gray-600 hover:text-ata-blue transition-colors hidden sm:block">
+                Jeux
+              </Link>
               <Link href="/mon-compte" className="text-sm text-gray-600 hover:text-ata-blue transition-colors hidden sm:block">
                 Mon compte
               </Link>

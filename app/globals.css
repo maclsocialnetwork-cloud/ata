@@ -6,3 +6,17 @@
   --color-ata-green: #5BAD2F;
   --font-sans: var(--font-inter);
 }
+
+@keyframes defilement {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.carrousel-defilement {
+  animation: defilement 28s linear infinite;
+  will-change: transform;
+}
+
+.carrousel-defilement:hover {
+  animation-play-state: paused;
+}
