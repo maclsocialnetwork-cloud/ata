@@ -8,7 +8,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log('Body reçu:', body);
 
-    const { prenom, nom, whatsapp, role, nom_organisation, userId } = body;
+    // Accepter les deux noms possibles (nom_organisation et nomOrganisation)
+    const { prenom, nom, whatsapp, role, nom_organisation, nomOrganisation, userId } = body;
+    const organisation = nom_organisation || nomOrganisation; // prend la valeur existante
 
     if (!userId) {
       console.error('userId manquant');
@@ -58,7 +60,7 @@ export async function POST(request: Request) {
         const { error } = await supabaseServiceRole
           .from('organisateurs')
           .update({
-            nom_organisation: nom_organisation,
+            nom_organisation: organisation,
             abonnement_actif: false,
             date_expiration_abo: null,
           })
@@ -70,7 +72,7 @@ export async function POST(request: Request) {
           .from('organisateurs')
           .insert({
             user_id: userId,
-            nom_organisation: nom_organisation,
+            nom_organisation: organisation,
             abonnement_actif: false,
             date_expiration_abo: null,
           });
