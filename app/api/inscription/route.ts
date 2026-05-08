@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { supabaseServiceRole } from '@/lib/supabase/service';
 
 export async function POST(request: Request) {
-  // Log pour vérifier si la variable d'environnement est chargée
   console.log('SUPABASE_SERVICE_ROLE_KEY chargée ?', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 
   try {
@@ -39,19 +38,47 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Erreur profile: ${profileError.message}` }, { status: 500 });
     }
 
-    // Si organisateur, insérer dans organisateurs
+    // Si organisateur, gérer l'organisateur (sans upsert)
     if (role === 'organisateur') {
-      const { error: orgError } = await supabaseServiceRole
+      // Vérifier si une ligne existe déjà pour cet user_id
+      const { data: existing, error: checkError } = await supabaseServiceRole
         .from('organisateurs')
-        .upsert({
-          user_id: userId,
-          nom_organisation: nom_organisation,
-          abonnement_actif: false,
-          date_expiration_abo: null,
-        }, { onConflict: 'user_id' });
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('Erreur vérification organisateur:', checkError);
+        return NextResponse.json({ error: `Erreur lors de la vérification organisateur: ${checkError.message}` }, { status: 500 });
+      }
+
+      let orgError = null;
+      if (existing) {
+        // Mettre à jour l'existant
+        const { error } = await supabaseServiceRole
+          .from('organisateurs')
+          .update({
+            nom_organisation: nom_organisation,
+            abonnement_actif: false,
+            date_expiration_abo: null,
+          })
+          .eq('user_id', userId);
+        orgError = error;
+      } else {
+        // Insérer un nouveau
+        const { error } = await supabaseServiceRole
+          .from('organisateurs')
+          .insert({
+            user_id: userId,
+            nom_organisation: nom_organisation,
+            abonnement_actif: false,
+            date_expiration_abo: null,
+          });
+        orgError = error;
+      }
 
       if (orgError) {
-        console.error('Erreur insertion organisateur:', orgError);
+        console.error('Erreur insertion/mise à jour organisateur:', orgError);
         return NextResponse.json({ error: `Erreur organisateur: ${orgError.message}` }, { status: 500 });
       }
     }
