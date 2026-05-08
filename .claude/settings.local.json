@@ -23,7 +23,8 @@
       "Bash(Get-ChildItem -Path \"C:\\\\projets\\\\ata\\\\app\\\\tombola\" -Recurse -ErrorAction SilentlyContinue)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\projets\\\\ata\\\\app\" -Recurse | Select-Object FullName, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Dir\"}else{\"File\"}}} | Sort-Object FullName)",
       "Bash(npm list *)",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(npm run *)"
     ]
   }
 }

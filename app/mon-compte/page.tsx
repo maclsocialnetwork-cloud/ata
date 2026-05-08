@@ -18,14 +18,14 @@ type Participation = {
   debut_at: string
   score: number | null
   statut: string
-  concours: { titre: string } | null
+  concours: { titre: string }[] | null
 }
 
 type TicketTombola = {
   id: string
   numero_ticket: string
   created_at: string
-  tombola: { titre: string } | null
+  tombola: { titre: string }[] | null
 }
 
 type OrgData = {
@@ -226,7 +226,7 @@ export default function PageMonCompte() {
                         return (
                           <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-5 py-3 font-medium text-gray-800 max-w-[160px] truncate">
-                              {p.concours?.titre ?? <span className="text-gray-300">—</span>}
+                              {p.concours?.[0]?.titre ?? <span className="text-gray-300">—</span>}
                             </td>
                             <td className="px-3 py-3 text-gray-500 hidden sm:table-cell whitespace-nowrap">
                               {formatDate(p.debut_at)}
@@ -272,7 +272,7 @@ export default function PageMonCompte() {
                       {tickets.map(t => (
                         <tr key={t.id} className="hover:bg-gray-50 transition-colors">
                           <td className="px-5 py-3 font-medium text-gray-800 max-w-[160px] truncate">
-                            {t.tombola?.titre ?? <span className="text-gray-300">—</span>}
+                            {t.tombola?.[0]?.titre ?? <span className="text-gray-300">—</span>}
                           </td>
                           <td className="px-3 py-3 font-mono text-ata-blue text-xs">
                             {t.numero_ticket}

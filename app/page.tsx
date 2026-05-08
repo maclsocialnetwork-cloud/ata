@@ -336,8 +336,14 @@ export default function PageLanding() {
 
             {/* Identité */}
             <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-ata-orange mb-3">
-                <span className="text-white font-extrabold text-xl tracking-tighter">ATA</span>
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white overflow-hidden shadow-lg mb-3">
+                <Image
+                  src="/logo-ata.jpg"
+                  alt="ATA Logo"
+                  width={64}
+                  height={64}
+                  className="object-cover rounded-full"
+                />
               </div>
               <p className="text-gray-400 text-sm">Achat Tombola Afrique</p>
             </div>
