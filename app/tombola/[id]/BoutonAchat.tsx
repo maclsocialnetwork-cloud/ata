@@ -16,19 +16,14 @@ export default function BoutonAchat({ tombolaId, prixFormate, estAchetable }: Pr
     setCharge(true)
     setErreur(null)
     try {
-      const res = await fetch('/api/tombola/acheter', {
+      const res = await fetch('/api/paiements/initier', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tombolaId }),
+        body: JSON.stringify({ type: 'ticket', tombolaId }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Erreur lors de la demande.')
-      if (data.urlPaiement) {
-        window.location.href = data.urlPaiement
-      } else {
-        setErreur('Paiement CinetPay non encore disponible. Revenez bientôt.')
-        setCharge(false)
-      }
+      if (!res.ok) throw new Error(data.erreur ?? 'Erreur lors de la demande.')
+      window.location.href = data.paymentUrl
     } catch (err: unknown) {
       setErreur(err instanceof Error ? err.message : 'Une erreur est survenue.')
       setCharge(false)
@@ -42,7 +37,7 @@ export default function BoutonAchat({ tombolaId, prixFormate, estAchetable }: Pr
         disabled={!estAchetable || charge}
         className="w-full bg-ata-green text-white font-bold py-4 rounded-2xl text-base hover:opacity-90 transition-opacity disabled:opacity-40"
       >
-        {charge ? 'Redirection...' : `Acheter un ticket à ${prixFormate} XOF`}
+        {charge ? 'Redirection…' : `Acheter un ticket à ${prixFormate} XOF`}
       </button>
 
       {!estAchetable && (
