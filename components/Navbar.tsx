@@ -54,7 +54,7 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
         {/* Logo et nom */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <span className="text-ata-orange font-extrabold text-2xl tracking-tight">ATA</span>
+          <img src="/logo-ata.jpg" alt="ATA" width={40} height={40} className="rounded-full object-cover" />
           <span className="inline-block text-ata-blue text-sm font-medium">
             Achat Tombola Afrique
           </span>

@@ -102,6 +102,11 @@ function ContenuConnexion() {
     <main className="min-h-screen bg-ata-blue flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-ata-blue px-8 py-6 text-center">
+          <div className="flex justify-center mb-3">
+            <div className="bg-white rounded-full w-20 h-20 flex items-center justify-center overflow-hidden shadow-md">
+              <img src="/logo-ata.jpg" alt="ATA" width={80} height={80} className="rounded-full object-cover" />
+            </div>
+          </div>
           <h1 className="text-white text-2xl font-bold tracking-wide">Achat Tombola Afrique</h1>
           <p className="text-white/70 text-sm mt-1">Jeux concours QCM</p>
         </div>
