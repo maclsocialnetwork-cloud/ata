@@ -24,7 +24,13 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\projets\\\\ata\\\\app\" -Recurse | Select-Object FullName, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Dir\"}else{\"File\"}}} | Sort-Object FullName)",
       "Bash(npm list *)",
       "Bash(npx next *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(node -e \"require\\('sharp'\\)\")",
+      "Bash(not exist *)",
+      "Bash(New-Item -ItemType Directory -Force -Path \"C:\\\\projets\\\\ata\\\\scripts\")",
+      "Bash(Out-Null)",
+      "Bash(Write-Output \"OK\")",
+      "Bash(node *)"
     ]
   }
 }
