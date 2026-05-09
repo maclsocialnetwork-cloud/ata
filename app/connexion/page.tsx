@@ -46,7 +46,12 @@ function ContenuConnexion() {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email: emailConnexion, password: mdpConnexion })
     setChargement(false)
-    if (error) { setErreur(traduitErreurSupabase(error.message)); return }
+    if (error) {
+      console.error('❌ Erreur connexion :', error)
+      alert(`Erreur technique : ${error.message}`)
+      setErreur(traduitErreurSupabase(error.message))
+      return
+    }
     router.push(redirect)
     router.refresh()
   }
@@ -69,9 +74,16 @@ function ContenuConnexion() {
         data: { prenom, nom, whatsapp, role, nom_organisation: nomOrganisation.trim() || null },
       },
     })
-    setChargement(false)
 
-    if (error) { setErreur(traduitErreurSupabase(error.message)); return }
+    if (error) {
+      console.error('❌ Erreur inscription détaillée :', error)
+      alert(`Erreur technique : ${error.message}\nCode : ${error.status || 'inconnu'}`)
+      setErreur(traduitErreurSupabase(error.message))
+      setChargement(false)
+      return
+    }
+
+    setChargement(false)
 
     if (data.session) {
       router.push(role === 'organisateur' ? '/organisateur' : redirect)
