@@ -48,7 +48,6 @@ function ContenuConnexion() {
     setChargement(false)
     if (error) {
       console.error('❌ Erreur connexion :', error)
-      alert(`Erreur technique : ${error.message}`)
       setErreur(traduitErreurSupabase(error.message))
       return
     }
@@ -77,7 +76,6 @@ function ContenuConnexion() {
 
     if (error) {
       console.error('❌ Erreur inscription détaillée :', error)
-      alert(`Erreur technique : ${error.message}\nCode : ${error.status || 'inconnu'}`)
       setErreur(traduitErreurSupabase(error.message))
       setChargement(false)
       return
