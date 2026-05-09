@@ -20,8 +20,8 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} h-full antialiased`}>
       <head>
-        <link rel="icon" type="image/jpeg" href="/logo-ata.jpg?v=10" />
-        <link rel="shortcut icon" href="/logo-ata.jpg?v=10" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=999" />
+        <link rel="shortcut icon" href="/favicon.ico?v=999" />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
