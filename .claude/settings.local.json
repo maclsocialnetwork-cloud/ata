@@ -30,7 +30,9 @@
       "Bash(New-Item -ItemType Directory -Force -Path \"C:\\\\projets\\\\ata\\\\scripts\")",
       "Bash(Out-Null)",
       "Bash(Write-Output \"OK\")",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(mkdir -p /c/projets/ata/app/api/organisateur/tombola/\\\\[id\\\\])",
+      "Bash(mkdir -p /c/projets/ata/app/organisateur/_components)"
     ]
   }
 }

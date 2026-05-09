@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseServiceRole } from '@/lib/supabase/service'
 import Navbar from '@/components/Navbar'
+import BoutonsTombola from './_components/BoutonsTombola'
 
 const STATUT_CONFIG: Record<string, { label: string; classes: string }> = {
   brouillon: { label: 'Brouillon', classes: 'bg-gray-100 text-gray-600' },
@@ -104,24 +105,44 @@ export default async function PageOrganisateur() {
     console.error('[dashboard] 8. EXCEPTION concours:', err)
   }
 
-  // ── Tombolas (désactivé temporairement pour diagnostic) ──────────────────
-  // let tombolaList: { id: string; titre: string; lot: string; statut: string }[] = []
-  // try {
-  //   console.log('[dashboard] 9. Requête tombola pour organisateur_id:', organisateur.id)
-  //   const { data, error } = await supabaseServiceRole
-  //     .from('tombola')
-  //     .select('id, titre, lot, statut')
-  //     .eq('organisateur_id', organisateur.id)
-  //     .eq('type_tombola', 'participation')
-  //     .order('id', { ascending: false })
-  //   if (error) console.error('[dashboard] 9. Erreur tombola:', error.message)
-  //   else console.log('[dashboard] 9. Tombola OK – nb:', data?.length ?? 0, '– data:', JSON.stringify(data))
-  //   tombolaList = data ?? []
-  // } catch (err) {
-  //   console.error('[dashboard] 9. EXCEPTION tombola:', err)
-  // }
-  const tombolaList: { id: string; titre: string; lot: string; statut: string }[] = []
-  console.log('[dashboard] 9. Tombola – DÉSACTIVÉ pour diagnostic')
+  // ── Tombolas actives (archive=false, deleted=false) ───────────────────────
+  type Tombola = { id: string; titre: string; lot: string; statut: string; archive: boolean }
+  let tombolaList: Tombola[] = []
+  try {
+    console.log('[dashboard] 9. Requête tombola active pour organisateur_id:', organisateur.id)
+    const { data, error } = await supabaseServiceRole
+      .from('tombola')
+      .select('id, titre, lot, statut, archive')
+      .eq('organisateur_id', organisateur.id)
+      .eq('type_tombola', 'participation')
+      .eq('archive', false)
+      .eq('deleted', false)
+      .order('id', { ascending: false })
+    if (error) console.error('[dashboard] 9. Erreur tombola:', error.message)
+    else console.log('[dashboard] 9. Tombola OK – nb:', data?.length ?? 0)
+    tombolaList = data ?? []
+  } catch (err) {
+    console.error('[dashboard] 9. EXCEPTION tombola:', err)
+  }
+
+  // ── Tombolas archivées (archive=true, deleted=false) ──────────────────────
+  let tombolaArchiveeList: Tombola[] = []
+  try {
+    console.log('[dashboard] 9b. Requête tombola archivée pour organisateur_id:', organisateur.id)
+    const { data, error } = await supabaseServiceRole
+      .from('tombola')
+      .select('id, titre, lot, statut, archive')
+      .eq('organisateur_id', organisateur.id)
+      .eq('type_tombola', 'participation')
+      .eq('archive', true)
+      .eq('deleted', false)
+      .order('id', { ascending: false })
+    if (error) console.error('[dashboard] 9b. Erreur tombola archivée:', error.message)
+    else console.log('[dashboard] 9b. Tombola archivée OK – nb:', data?.length ?? 0)
+    tombolaArchiveeList = data ?? []
+  } catch (err) {
+    console.error('[dashboard] 9b. EXCEPTION tombola archivée:', err)
+  }
 
   // ── Participations ────────────────────────────────────────────────────────
   const nbParticipationsMap: Record<string, number> = {}
@@ -143,7 +164,7 @@ export default async function PageOrganisateur() {
     }
   }
 
-  console.log('[dashboard] 11. Rendu JSX – concours:', concoursList.length, '– tombolas: DÉSACTIVÉ')
+  console.log('[dashboard] 11. Rendu JSX – concours:', concoursList.length, '– tombolas:', tombolaList.length, '– archivées:', tombolaArchiveeList.length)
 
   // ── JSX ───────────────────────────────────────────────────────────────────
   return (
@@ -215,11 +236,59 @@ export default async function PageOrganisateur() {
           </div>
         )}
 
-        {/* ── Tombolas à venir – DÉSACTIVÉ pour diagnostic ──────────────────── */}
-        {/* <div className="mt-10">
+        {/* ── Tombolas à venir ───────────────────────────────────────────────── */}
+        <div className="mt-10">
           <h2 className="text-lg font-bold text-ata-blue mb-4">Mes tombolas à venir</h2>
-          ...
-        </div> */}
+
+          {tombolaList.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
+              <p className="font-medium text-gray-500">Aucune tombola active</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Créez une tombola à venir pour sonder l'intérêt des participants.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {tombolaList.map(t => (
+                <div key={t.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-ata-blue truncate">{t.titre}</h3>
+                      <span className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold bg-purple-100 text-purple-700">
+                        Participation
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1 truncate">Lot : {t.lot}</p>
+                  </div>
+                  <BoutonsTombola id={t.id} archive={false} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Tombolas archivées ─────────────────────────────────────────────── */}
+        {tombolaArchiveeList.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-base font-semibold text-gray-400 mb-3">Tombolas archivées</h2>
+            <div className="space-y-2">
+              {tombolaArchiveeList.map(t => (
+                <div key={t.id} className="bg-gray-50 rounded-2xl border border-gray-100 px-5 py-3 flex flex-col sm:flex-row sm:items-center gap-3 opacity-75">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-medium text-gray-500 truncate">{t.titre}</h3>
+                      <span className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold bg-gray-200 text-gray-500">
+                        Archivée
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-0.5 truncate">Lot : {t.lot}</p>
+                  </div>
+                  <BoutonsTombola id={t.id} archive={true} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </>
   )
