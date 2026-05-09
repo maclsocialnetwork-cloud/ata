@@ -74,7 +74,6 @@ export default function PageNouvelleTombola() {
       if (!res.ok) throw new Error(json.erreur || 'Erreur serveur')
 
       router.push('/organisateur')
-      router.refresh()
     } catch (err: unknown) {
       setErreur(err instanceof Error ? err.message : 'Erreur inattendue')
     } finally {

@@ -61,7 +61,10 @@ export default async function PageOrganisateur() {
     )
   }
 
-  const [{ data: concoursList }, { data: tombolaList }] = await Promise.all([
+  const [
+    { data: concoursList, error: concoursError },
+    { data: tombolaList,  error: tombolaError  },
+  ] = await Promise.all([
     supabaseServiceRole
       .from('concours')
       .select('id, titre, statut, date_debut, date_fin')
@@ -75,6 +78,10 @@ export default async function PageOrganisateur() {
       .eq('type_tombola', 'participation')
       .order('id', { ascending: false }),
   ])
+
+  if (concoursError) console.error('Erreur requête concours:', concoursError.message)
+  if (tombolaError)  console.error('Erreur requête tombola:', tombolaError.message)
+  console.log('7. Tombolas trouvées:', tombolaList?.length ?? 0, tombolaError ?? 'ok')
 
   const ids = concoursList?.map(c => c.id) ?? []
   const nbParticipationsMap: Record<string, number> = {}
@@ -141,8 +148,9 @@ export default async function PageOrganisateur() {
                     </div>
                     <p className="text-xs text-gray-400 mt-1">
                       {nb} participation{nb !== 1 ? 's' : ''}
-                      {' · '}
-                      {new Date(c.date_debut).toLocaleDateString('fr-FR')} → {new Date(c.date_fin).toLocaleDateString('fr-FR')}
+                      {c.date_debut && c.date_fin && (
+                        <> · {new Date(c.date_debut).toLocaleDateString('fr-FR')} → {new Date(c.date_fin).toLocaleDateString('fr-FR')}</>
+                      )}
                     </p>
                   </div>
                   <div className="flex gap-2 shrink-0">
