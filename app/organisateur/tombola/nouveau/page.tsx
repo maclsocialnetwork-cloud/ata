@@ -30,10 +30,22 @@ export default function PageNouvelleTombola() {
     setChargement(true)
 
     try {
+      const supabase = createClient()
+
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Non authentifié')
+
+      const { data: organisateur, error: orgError } = await supabase
+        .from('organisateurs')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+
+      if (orgError || !organisateur) throw new Error('Profil organisateur introuvable')
+
       let photo_url: string | null = null
 
       if (photoFichier) {
-        const supabase = createClient()
         const ext = photoFichier.name.split('.').pop()
         const path = `tombola-${Date.now()}.${ext}`
         const { data: upload, error: uploadError } = await supabase.storage
@@ -54,6 +66,7 @@ export default function PageNouvelleTombola() {
           description: description || null,
           lot,
           photo_url,
+          organisateur_id: organisateur.id,
         }),
       })
 
