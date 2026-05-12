@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { supabaseServiceRole } from '@/lib/supabase/service'
 import Navbar from '@/components/Navbar'
-import RafraichisseurAuto from '@/components/RafraichisseurAuto'
+// import RafraichisseurAuto from '@/components/RafraichisseurAuto'
 import ConcoursCard from '@/components/concours/ConcoursCard'
 import TombolaCard from '@/components/tombola/TombolaCard'
 
@@ -138,7 +138,7 @@ export default async function PageJeux() {
 
   return (
     <>
-      <RafraichisseurAuto />
+      {/* <RafraichisseurAuto /> */}
       <Navbar />
 
       <main className="flex-1 bg-[#F9F9F9] px-4 py-10">
