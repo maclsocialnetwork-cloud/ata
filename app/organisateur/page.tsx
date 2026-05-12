@@ -12,28 +12,47 @@ const STATUT_CONFIG: Record<string, { label: string; classes: string }> = {
   termine:   { label: 'Terminé',   classes: 'bg-red-100 text-red-600' },
 }
 
+function PageErreur({ titre, message }: { titre: string; message: string }) {
+  return (
+    <>
+      <Navbar />
+      <main className="max-w-2xl mx-auto px-4 py-16">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-8 text-center">
+          <p className="text-yellow-800 font-semibold text-lg mb-2">{titre}</p>
+          <p className="text-yellow-700 text-sm">{message}</p>
+        </div>
+      </main>
+    </>
+  )
+}
+
 export default async function PageOrganisateur() {
   console.log('[dashboard] 1. Début du rendu')
 
   // ── Auth ──────────────────────────────────────────────────────────────────
-  let user
+  // redirect() NE doit PAS être appelé dans un catch — il lance une erreur
+  // spéciale NEXT_REDIRECT qui doit pouvoir se propager librement.
+  let user: { id: string } | null = null
   try {
     const supabase = await createClient()
     const { data } = await supabase.auth.getUser()
     user = data.user
     console.log('[dashboard] 2. Auth OK – user_id:', user?.id ?? 'null')
   } catch (err) {
-    console.error('[dashboard] 2. ERREUR auth:', err)
-    redirect('/connexion?redirect=/organisateur')
+    console.error('[dashboard] 2. ERREUR auth (createClient/getUser):', err)
+    // Ne pas appeler redirect() ici — la vérification ci-dessous s'en charge.
   }
 
   if (!user) {
-    console.log('[dashboard] 3. Non connecté → redirection')
+    console.log('[dashboard] 3. Non connecté → redirection /connexion')
     redirect('/connexion?redirect=/organisateur')
+    return // unreachable mais rassure TypeScript et les linters
   }
 
   // ── Profil (rôle) ─────────────────────────────────────────────────────────
+  // maybeSingle() évite l'erreur PGRST116 si aucune ligne n'existe.
   let profil: { role: string } | null = null
+  let erreurProfil = false
   try {
     const supabase = await createClient()
     console.log('[dashboard] 4. Requête profiles pour user_id:', user.id)
@@ -41,17 +60,37 @@ export default async function PageOrganisateur() {
       .from('profiles')
       .select('role')
       .eq('id', user.id)
-      .single()
-    if (error) console.error('[dashboard] 4. Erreur profiles:', error.message)
-    else console.log('[dashboard] 4. Profil OK – rôle:', data?.role)
-    profil = data
+      .maybeSingle()
+    if (error) {
+      console.error('[dashboard] 4. Erreur profiles:', error.message)
+      erreurProfil = true
+    } else {
+      console.log('[dashboard] 4. Profil OK – rôle:', data?.role)
+      profil = data
+    }
   } catch (err) {
     console.error('[dashboard] 4. EXCEPTION profiles:', err)
+    erreurProfil = true
+  }
+
+  // Accès refusé — afficher un message plutôt que de rediriger (évite les boucles)
+  if (erreurProfil) {
+    return (
+      <PageErreur
+        titre="Impossible de vérifier votre accès"
+        message="Une erreur est survenue lors de la vérification de votre profil. Veuillez réessayer dans quelques instants."
+      />
+    )
   }
 
   if (!profil || (profil.role !== 'organisateur' && profil.role !== 'admin')) {
-    console.log('[dashboard] 5. Rôle non autorisé:', profil?.role, '→ redirection /')
-    redirect('/')
+    console.log('[dashboard] 5. Rôle non autorisé:', profil?.role)
+    return (
+      <PageErreur
+        titre="Accès non autorisé"
+        message="Cette section est réservée aux organisateurs. Contactez l'administrateur si vous pensez qu'il s'agit d'une erreur."
+      />
+    )
   }
 
   // ── Organisateur ──────────────────────────────────────────────────────────
@@ -74,18 +113,10 @@ export default async function PageOrganisateur() {
   if (!organisateur) {
     console.log('[dashboard] 7. Organisateur introuvable → affichage message')
     return (
-      <>
-        <Navbar />
-        <main className="max-w-2xl mx-auto px-4 py-16">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-8 text-center">
-            <p className="text-yellow-800 font-semibold text-lg mb-2">Compte organisateur non configuré</p>
-            <p className="text-yellow-700 text-sm">
-              Votre compte n'est pas encore rattaché à un profil organisateur.
-              Contactez l'administrateur pour activer votre espace.
-            </p>
-          </div>
-        </main>
-      </>
+      <PageErreur
+        titre="Votre compte organisateur n'est pas encore configuré"
+        message="Votre compte n'est pas encore rattaché à un profil organisateur. Contactez l'administrateur pour activer votre espace."
+      />
     )
   }
 
@@ -105,7 +136,7 @@ export default async function PageOrganisateur() {
     console.error('[dashboard] 8. EXCEPTION concours:', err)
   }
 
-  // ── Tombolas actives (archive=false, deleted=false) ───────────────────────
+  // ── Tombolas actives (archive=false, deleted=false, type=participation) ───
   type Tombola = { id: string; titre: string; lot: string; statut: string; archive: boolean }
   let tombolaList: Tombola[] = []
   try {
@@ -125,7 +156,7 @@ export default async function PageOrganisateur() {
     console.error('[dashboard] 9. EXCEPTION tombola:', err)
   }
 
-  // ── Tombolas archivées (archive=true, deleted=false) ──────────────────────
+  // ── Tombolas archivées (archive=true, deleted=false, type=participation) ──
   let tombolaArchiveeList: Tombola[] = []
   try {
     console.log('[dashboard] 9b. Requête tombola archivée pour organisateur_id:', organisateur.id)

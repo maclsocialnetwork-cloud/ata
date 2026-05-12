@@ -48,6 +48,8 @@ export default async function PageJeux() {
         .from('tombola')
         .select('id, titre, lot, description, prix_ticket, date_fin, photo_url, type_tombola')
         .eq('statut', 'active')
+        .eq('archive', false)
+        .eq('deleted', false)
         .or(
           `type_tombola.eq.participation,and(type_tombola.eq.achat,date_debut.lte.${maintenant},date_fin.gte.${maintenant})`,
         )
