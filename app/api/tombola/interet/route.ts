@@ -17,17 +17,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'tombolaId manquant.' }, { status: 400 })
   }
 
-  // Vérifier si l'intérêt existe déjà
+  // Vérifier si l'intérêt existe déjà (clé composite tombola_id+user_id, pas de colonne id)
   const { data: existant } = await supabaseServiceRole
     .from('tombola_interet')
-    .select('id')
+    .select('tombola_id')
     .eq('tombola_id', tombolaId)
     .eq('user_id', user.id)
     .maybeSingle()
 
   if (existant) {
-    // Toggle OFF : supprimer l'intérêt
-    await supabaseServiceRole.from('tombola_interet').delete().eq('id', existant.id)
+    // Toggle OFF : supprimer par clé composite
+    await supabaseServiceRole
+      .from('tombola_interet')
+      .delete()
+      .eq('tombola_id', tombolaId)
+      .eq('user_id', user.id)
   } else {
     // Toggle ON : ajouter l'intérêt
     await supabaseServiceRole

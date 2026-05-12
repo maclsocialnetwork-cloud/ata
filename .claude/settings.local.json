@@ -32,7 +32,9 @@
       "Bash(Write-Output \"OK\")",
       "Bash(node *)",
       "Bash(mkdir -p /c/projets/ata/app/api/organisateur/tombola/\\\\[id\\\\])",
-      "Bash(mkdir -p /c/projets/ata/app/organisateur/_components)"
+      "Bash(mkdir -p /c/projets/ata/app/organisateur/_components)",
+      "Bash(Get-ChildItem -Path \"C:\\\\projets\\\\ata\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)"
     ]
   }
 }

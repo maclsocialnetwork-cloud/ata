@@ -17,7 +17,7 @@ export default async function PageResultat({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/concours/connexion')
+  if (!user) redirect(`/connexion?redirect=/resultat/${participationId}`)
 
   const { data: participation } = await supabaseServiceRole
     .from('participations')
