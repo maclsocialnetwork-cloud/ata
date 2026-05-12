@@ -35,9 +35,9 @@ export default async function PageOrganisateur() {
   let user: { id: string } | null = null
   try {
     const supabase = await createClient()
-    const { data } = await supabase.auth.getUser()
+    const { data, error: authError } = await supabase.auth.getUser()
     user = data.user
-    console.log('[dashboard] 2. Auth OK – user_id:', user?.id ?? 'null')
+    console.log('[dashboard] 2. Auth –', user ? `authentifié user_id=${user.id}` : `non authentifié (error=${authError?.message ?? 'null'})`)
   } catch (err) {
     console.error('[dashboard] 2. ERREUR auth:', err)
   }
@@ -125,9 +125,12 @@ export default async function PageOrganisateur() {
       .from('concours')
       .select('id, titre, statut, date_debut, date_fin')
       .eq('organisateur_id', organisateur.id)
-      .order('date_fin', { ascending: false })
-    if (error) console.error('[dashboard] 8. Erreur concours:', error.message)
-    else console.log('[dashboard] 8. Concours OK – nb:', data?.length ?? 0)
+      .order('date_fin', { ascending: false, nullsFirst: false })
+    if (error) {
+      console.error('[dashboard] 8. Erreur concours:', error.message)
+    } else {
+      console.log('[dashboard] 8. Concours OK – nb:', data?.length ?? 0, '– statuts:', data?.map(c => c.statut).join(', ') || 'aucun')
+    }
     concoursList = data ?? []
   } catch (err) {
     console.error('[dashboard] 8. EXCEPTION concours:', err)

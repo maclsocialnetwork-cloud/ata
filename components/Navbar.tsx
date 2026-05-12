@@ -9,6 +9,7 @@ export default function Navbar() {
   const router = useRouter()
   const [prenom, setPrenom] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
+  const [role, setRole] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -21,11 +22,12 @@ export default function Navbar() {
 
       const { data: profil } = await supabase
         .from('profiles')
-        .select('prenom')
+        .select('prenom, role')
         .eq('id', user.id)
         .single()
 
       setPrenom(profil?.prenom ?? null)
+      setRole(profil?.role ?? null)
     }
 
     chargerUtilisateur()
@@ -34,6 +36,7 @@ export default function Navbar() {
       if (event === 'SIGNED_OUT') {
         setUserId(null)
         setPrenom(null)
+        setRole(null)
       } else if (event === 'SIGNED_IN') {
         chargerUtilisateur()
       }
@@ -74,6 +77,11 @@ export default function Navbar() {
               <Link href="/mon-compte" className="text-gray-600 hover:text-ata-blue transition-colors">
                 Mon compte
               </Link>
+              {(role === 'organisateur' || role === 'admin') && (
+                <Link href="/organisateur" className="text-gray-600 hover:text-ata-blue transition-colors">
+                  Organisateur
+                </Link>
+              )}
               {prenom && (
                 <span className="text-gray-700 whitespace-nowrap">
                   Bonjour <span className="font-semibold text-ata-blue">{prenom}</span>
