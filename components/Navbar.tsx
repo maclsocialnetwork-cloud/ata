@@ -26,6 +26,7 @@ export default function Navbar() {
         .eq('id', user.id)
         .single()
 
+      console.log('Rôle détecté:', profil?.role)
       setPrenom(profil?.prenom ?? null)
       setRole(profil?.role ?? null)
     }
@@ -77,6 +78,7 @@ export default function Navbar() {
               <Link href="/mon-compte" className="text-gray-600 hover:text-ata-blue transition-colors">
                 Mon compte
               </Link>
+              {role && <span className="text-xs text-gray-400 mr-2">Role: {role}</span>}
               {(role === 'organisateur' || role === 'admin') && (
                 <Link href="/organisateur" className="text-gray-600 hover:text-ata-blue transition-colors">
                   Organisateur
