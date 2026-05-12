@@ -33,6 +33,7 @@ export default async function PageOrganisateur() {
   // redirect() NE doit PAS être dans un catch — il lance une erreur NEXT_REDIRECT
   // qui doit pouvoir se propager librement.
   let user: { id: string } | null = null
+  let erreurAuth = false
   try {
     const supabase = await createClient()
     const { data, error: authError } = await supabase.auth.getUser()
@@ -40,12 +41,22 @@ export default async function PageOrganisateur() {
     console.log('[dashboard] 2. Auth –', user ? `authentifié user_id=${user.id}` : `non authentifié (error=${authError?.message ?? 'null'})`)
   } catch (err) {
     console.error('[dashboard] 2. ERREUR auth:', err)
+    erreurAuth = true
+  }
+
+  // Erreur technique : ne pas rediriger (évite la boucle si /connexion renvoie ici)
+  if (erreurAuth) {
+    return (
+      <PageErreur
+        titre="Erreur de session"
+        message="Impossible de vérifier votre session. Veuillez rafraîchir la page ou vous reconnecter."
+      />
+    )
   }
 
   if (!user) {
     console.log('[dashboard] 3. Non connecté → redirection /connexion')
     redirect('/connexion?redirect=/organisateur')
-    return
   }
 
   // ── Profil (rôle) ─────────────────────────────────────────────────────────
