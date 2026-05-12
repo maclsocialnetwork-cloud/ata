@@ -101,8 +101,8 @@ export default function PageMonCompte() {
             .limit(30),
         ])
 
-        setParticipations((partsRes.data as Participation[]) ?? [])
-        setTickets((ticksRes.data as TicketTombola[]) ?? [])
+        setParticipations((partsRes.data as any) ?? []) // TODO: améliorer le typage plus tard
+        setTickets((ticksRes.data as any) ?? []) // TODO: améliorer le typage plus tard
       }
 
       if (profilData.role === 'organisateur') {
