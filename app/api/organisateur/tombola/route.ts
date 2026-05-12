@@ -22,9 +22,10 @@ export async function POST(req: NextRequest) {
     .from('organisateurs')
     .select('id')
     .eq('user_id', user.id)
-    .single()
+    .maybeSingle()
 
   if (!organisateur) {
+    console.error('[tombola/POST] Organisateur non trouvé pour user_id:', user.id)
     return NextResponse.json({ erreur: 'Profil organisateur introuvable' }, { status: 404 })
   }
 
