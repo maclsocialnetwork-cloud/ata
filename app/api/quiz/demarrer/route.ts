@@ -36,9 +36,11 @@ export async function POST(request: NextRequest) {
   }
   console.log('[demarrer] Questions trouvées :', questions.length);
 
-  // Vérifier qu'il y a 100 questions (optionnel)
-  if (questions.length !== 100) {
-    console.warn(`[demarrer] Attention: ${questions.length} questions (100 attendues)`);
+  if (questions.length < 10) {
+    return NextResponse.json({ error: 'Ce concours doit contenir au moins 10 questions.' }, { status: 400 });
+  }
+  if (questions.length > 100) {
+    return NextResponse.json({ error: 'Ce concours ne peut pas dépasser 100 questions.' }, { status: 400 });
   }
 
   // 2. Mélanger l'ordre des IDs

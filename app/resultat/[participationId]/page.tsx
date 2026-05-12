@@ -33,17 +33,22 @@ export default async function PageResultat({
     redirect(`/quiz/${participationId}`)
   }
 
-  const [profilRes, concoursRes] = await Promise.all([
+  const [profilRes, concoursRes, questionsCountRes] = await Promise.all([
     supabaseServiceRole.from('profiles').select('prenom').eq('id', user.id).single(),
     supabaseServiceRole
       .from('concours')
       .select('titre, description_lot')
       .eq('id', participation.concours_id)
       .single(),
+    supabaseServiceRole
+      .from('questions')
+      .select('id', { count: 'exact', head: true })
+      .eq('concours_id', participation.concours_id),
   ])
 
   const prenom = profilRes.data?.prenom ?? 'Participant'
   const concours = concoursRes.data
+  const totalQuestions = questionsCountRes.count ?? 0
   const score = participation.score ?? 0
   const tempsSecondes = participation.temps_secondes ?? 0
   const minutes = Math.floor(tempsSecondes / 60)
@@ -86,7 +91,7 @@ export default async function PageResultat({
             <div className="bg-white/20 rounded-2xl px-6 py-4 mb-8 flex justify-around text-sm font-medium">
               <div>
                 <p className="text-white/70 text-xs uppercase tracking-widest mb-1">Score</p>
-                <p className="text-2xl font-bold">100<span className="text-base font-normal opacity-70">/100</span></p>
+                <p className="text-2xl font-bold">{score}<span className="text-base font-normal opacity-70">/{totalQuestions}</span></p>
               </div>
               <div className="w-px bg-white/30" />
               <div>
@@ -150,7 +155,7 @@ export default async function PageResultat({
               <p className="text-xs text-gray-400 uppercase tracking-widest mb-2">Votre score</p>
               <p className="text-5xl font-extrabold text-ata-blue mb-1">
                 {score}
-                <span className="text-xl font-normal text-gray-400">/100</span>
+                <span className="text-xl font-normal text-gray-400">/{totalQuestions}</span>
               </p>
               <p className="text-gray-500 text-sm mt-2">Temps : {tempsFormate}</p>
             </div>

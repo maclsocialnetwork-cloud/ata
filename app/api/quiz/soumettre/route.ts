@@ -37,11 +37,15 @@ export async function POST(request: NextRequest) {
   // Double-check idempotent : déjà terminée → retourner le résultat stocké sans recalculer
   if (participation.statut === 'termine') {
     console.log('[soumettre] → déjà terminée, résultat stocké retourné')
+    const { count } = await supabaseServiceRole
+      .from('questions')
+      .select('id', { count: 'exact', head: true })
+      .eq('concours_id', participation.concours_id)
     return NextResponse.json({
       score: participation.score ?? 0,
       estGagnant: participation.est_gagnant ?? false,
       tempsSecondes: participation.temps_secondes ?? 0,
-      totalQuestions: 100,
+      totalQuestions: count ?? 0,
     })
   }
 
