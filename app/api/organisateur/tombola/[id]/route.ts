@@ -24,11 +24,15 @@ export async function PATCH(
   if (!organisateurId) return NextResponse.json({ erreur: 'Organisateur introuvable' }, { status: 403 })
 
   const body = await req.json()
-  const { archive, statut } = body
+  const { archive, statut, titre, lot, description, photo_url } = body
 
   const updates: Record<string, unknown> = {}
   if (typeof archive === 'boolean') updates.archive = archive
   if (typeof statut === 'string') updates.statut = statut
+  if (typeof titre === 'string') updates.titre = titre
+  if (typeof lot === 'string') updates.lot = lot
+  if ('description' in body) updates.description = description ?? null
+  if ('photo_url' in body) updates.photo_url = photo_url ?? null
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ erreur: 'Aucun champ valide à mettre à jour' }, { status: 400 })
