@@ -93,15 +93,19 @@ export default async function PageTombola({
   const prixFormate = new Intl.NumberFormat('fr-FR').format(tombola.prix_ticket)
 
   // ── Label statut ────────────────────────────────────────────────────────
-  const statutLabel =
-    tombola.statut === 'active'
+  const estParticipation = tombola.type_tombola === 'participation'
+
+  const statutLabel = estParticipation
+    ? 'À venir'
+    : tombola.statut === 'active'
       ? 'Active'
       : tombola.statut === 'terminee'
         ? 'Terminée'
         : 'Brouillon'
 
-  const statutClasses =
-    tombola.statut === 'active'
+  const statutClasses = estParticipation
+    ? 'bg-purple-100 text-purple-700'
+    : tombola.statut === 'active'
       ? 'bg-ata-green/10 text-ata-green'
       : tombola.statut === 'terminee'
         ? 'bg-gray-100 text-gray-500'
@@ -139,11 +143,15 @@ export default async function PageTombola({
 
           {/* Infos : prix + dates */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3.5">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-500">Prix du ticket</span>
-              <span className="font-bold text-ata-orange text-base">{prixFormate} XOF</span>
-            </div>
-            <div className="h-px bg-gray-100" />
+            {!estParticipation && (
+              <>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-500">Prix du ticket</span>
+                  <span className="font-bold text-ata-orange text-base">{prixFormate} XOF</span>
+                </div>
+                <div className="h-px bg-gray-100" />
+              </>
+            )}
             {tombola.date_debut && (
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-500">Début</span>
@@ -211,8 +219,27 @@ export default async function PageTombola({
               <BoutonInteret tombolaId={id} initialInteressee={interessee} />
             )}
 
+            {/* Grille de prix en aperçu pour les non-connectés (participation) */}
+            {!user && estParticipation && (
+              <div>
+                <p className="font-semibold text-sm text-ata-blue mb-3">
+                  Je participerai à cette tombola à :
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[100, 500, 1000, 2000, 5000, 10000].map((montant) => (
+                    <div
+                      key={montant}
+                      className="border border-gray-200 rounded-xl py-3 text-center text-sm font-medium text-gray-700"
+                    >
+                      {montant.toLocaleString('fr-FR')} FCFA
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Non connecté — message différent selon le type */}
-            {!user && tombola.type_tombola === 'participation' ? (
+            {!user && estParticipation ? (
               <Link
                 href={`/connexion?redirect=/tombola/${id}/sondage`}
                 className="block text-center bg-purple-600 text-white font-bold py-4 rounded-2xl text-base hover:opacity-90 transition"
