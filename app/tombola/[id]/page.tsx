@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
@@ -6,6 +7,47 @@ import Navbar from '@/components/Navbar'
 import CompteurRebours from '@/components/CompteurRebours'
 import BoutonInteret from './BoutonInteret'
 import BoutonAchat from './BoutonAchat'
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ata-macls-projects-ed759868.vercel.app'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const { data } = await supabaseServiceRole
+    .from('tombola')
+    .select('titre, lot, photo_url, organisateurs(nom_organisation)')
+    .eq('id', id)
+    .single()
+
+  if (!data) return { title: 'Tombola — ATA' }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const nomOrg = (data as any).organisateurs?.nom_organisation as string | null ?? null
+  const description = `Lot à gagner : ${data.lot}${nomOrg ? ` — Organisé par ${nomOrg}` : ''}. Exprimez votre intérêt sur ATA !`
+  const image = data.photo_url ?? `${BASE_URL}/icons/icon-512x512.png`
+
+  return {
+    title: `${data.titre} — ATA`,
+    description,
+    openGraph: {
+      title: data.titre,
+      description,
+      images: [{ url: image, alt: data.titre }],
+      locale: 'fr_FR',
+      type: 'website',
+      siteName: 'ATA — Achat Tombola Afrique',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: data.titre,
+      description,
+      images: [image],
+    },
+  }
+}
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('fr-FR', {
