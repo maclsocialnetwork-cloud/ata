@@ -27,7 +27,7 @@ export default async function PageTombola({
     supabaseServiceRole
       .from('tombola')
       .select(
-        'id, titre, description, lot, prix_ticket, date_debut, date_fin, statut, gagnant_user_id, numero_ticket_gagnant',
+        'id, titre, description, lot, prix_ticket, date_debut, date_fin, statut, type_tombola, gagnant_user_id, numero_ticket_gagnant',
       )
       .eq('id', id)
       .single()
@@ -144,14 +144,18 @@ export default async function PageTombola({
               <span className="font-bold text-ata-orange text-base">{prixFormate} XOF</span>
             </div>
             <div className="h-px bg-gray-100" />
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-500">Début</span>
-              <span className="font-medium text-gray-700">{formatDate(tombola.date_debut)}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-500">Fin</span>
-              <span className="font-medium text-gray-700">{formatDate(tombola.date_fin)}</span>
-            </div>
+            {tombola.date_debut && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-500">Début</span>
+                <span className="font-medium text-gray-700">{formatDate(tombola.date_debut)}</span>
+              </div>
+            )}
+            {tombola.date_fin && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-500">Fin</span>
+                <span className="font-medium text-gray-700">{formatDate(tombola.date_fin)}</span>
+              </div>
+            )}
           </div>
 
           {/* Compte à rebours (uniquement si pas terminée) */}
@@ -207,8 +211,15 @@ export default async function PageTombola({
               <BoutonInteret tombolaId={id} initialInteressee={interessee} />
             )}
 
-            {/* Achat de ticket */}
-            {!user ? (
+            {/* Non connecté — message différent selon le type */}
+            {!user && tombola.type_tombola === 'participation' ? (
+              <Link
+                href={`/connexion?redirect=/tombola/${id}/sondage`}
+                className="block text-center bg-purple-600 text-white font-bold py-4 rounded-2xl text-base hover:opacity-90 transition"
+              >
+                Intéressé.e ? Inscrivez-vous
+              </Link>
+            ) : !user ? (
               <Link
                 href="/connexion"
                 className="block text-center bg-ata-orange text-white font-bold py-4 rounded-2xl text-base hover:opacity-90 transition"

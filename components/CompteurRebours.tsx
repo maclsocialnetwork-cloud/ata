@@ -23,22 +23,27 @@ function calculerTemps(dateFin: string): Temps {
   }
 }
 
-export default function CompteurRebours({ dateFin }: { dateFin: string }) {
+export default function CompteurRebours({ dateFin }: { dateFin: string | null }) {
   // null = pas encore monté : le serveur rend null aussi → pas de mismatch
   const [temps, setTemps] = useState<Temps | null>(null)
 
   useEffect(() => {
+    if (!dateFin) return
     setTemps(calculerTemps(dateFin))
     const id = setInterval(() => setTemps(calculerTemps(dateFin)), 1000)
     return () => clearInterval(id)
   }, [dateFin])
+
+  if (!dateFin) {
+    return <p className="text-sm text-white font-medium">Ouvert</p>
+  }
 
   if (!temps) {
     return <div className="h-8" />
   }
 
   if (temps.termine) {
-    return <p className="text-sm text-gray-400 font-medium">Concours terminé</p>
+    return <p className="text-sm text-gray-400 font-medium">Terminé</p>
   }
 
   const pad = (n: number) => String(n).padStart(2, '0')
