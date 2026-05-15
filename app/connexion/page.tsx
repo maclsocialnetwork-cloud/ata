@@ -29,6 +29,9 @@ function ContenuConnexion() {
   const [mdpInscription, setMdpInscription] = useState('')
   const [mdpConfirmation, setMdpConfirmation] = useState('')
   const [codeParrainage, setCodeParrainage] = useState(() => searchParams.get('ref') ?? '')
+  const [modeMdpOublie, setModeMdpOublie] = useState(false)
+  const [emailReset, setEmailReset] = useState('')
+  const [resetEnvoye, setResetEnvoye] = useState(false)
 
   function traduitErreurSupabase(message: string): string {
     if (message.includes('Invalid login credentials')) return 'Email ou mot de passe incorrect.'
@@ -54,6 +57,19 @@ function ContenuConnexion() {
     }
     router.push(redirect)
     router.refresh()
+  }
+
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault()
+    setErreur(null)
+    setChargement(true)
+    const supabase = createClient()
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
+    await supabase.auth.resetPasswordForEmail(emailReset, {
+      redirectTo: `${baseUrl}/reinitialiser-mot-de-passe`,
+    })
+    setChargement(false)
+    setResetEnvoye(true)
   }
 
   async function handleInscription(e: React.FormEvent) {
@@ -119,12 +135,41 @@ function ContenuConnexion() {
           {erreur && <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{erreur}</div>}
           {succes && <div className="mb-4 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">{succes}</div>}
 
-          {onglet === 'connexion' && (
+          {onglet === 'connexion' && !modeMdpOublie && (
             <form onSubmit={handleConnexion} className="space-y-4">
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Adresse email</label><input type="email" required value={emailConnexion} onChange={e => setEmailConnexion(e.target.value)} placeholder="votre@email.com" className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-blue" /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label><input type="password" required value={mdpConnexion} onChange={e => setMdpConnexion(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-blue" /></div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">Mot de passe</label>
+                  <button type="button" onClick={() => { setModeMdpOublie(true); setErreur(null) }} className="text-xs text-gray-400 hover:text-ata-blue transition-colors">Mot de passe oublié ?</button>
+                </div>
+                <input type="password" required value={mdpConnexion} onChange={e => setMdpConnexion(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-blue" />
+              </div>
               <button type="submit" disabled={chargement} className="w-full bg-ata-green text-white font-semibold rounded-lg py-3 text-sm hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed mt-2">{chargement ? 'Connexion…' : 'Se connecter'}</button>
             </form>
+          )}
+
+          {onglet === 'connexion' && modeMdpOublie && (
+            <div className="space-y-4">
+              {resetEnvoye ? (
+                <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-5 text-sm text-green-700 text-center space-y-3">
+                  <p className="font-semibold text-base">Email envoyé !</p>
+                  <p>Vérifiez votre boîte mail et cliquez sur le lien pour créer un nouveau mot de passe.</p>
+                  <button type="button" onClick={() => { setModeMdpOublie(false); setResetEnvoye(false) }} className="text-xs text-green-600 underline hover:text-green-800 transition-colors">← Retour à la connexion</button>
+                </div>
+              ) : (
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-1">Mot de passe oublié</p>
+                    <p className="text-xs text-gray-500 mb-3">Saisissez votre adresse email. Vous recevrez un lien pour créer un nouveau mot de passe.</p>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Adresse email</label>
+                    <input type="email" required value={emailReset} onChange={e => setEmailReset(e.target.value)} placeholder="votre@email.com" className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-blue" />
+                  </div>
+                  <button type="submit" disabled={chargement} className="w-full bg-ata-blue text-white font-semibold rounded-lg py-3 text-sm hover:opacity-90 transition-opacity disabled:opacity-60">{chargement ? 'Envoi…' : 'Envoyer le lien'}</button>
+                  <button type="button" onClick={() => { setModeMdpOublie(false); setErreur(null) }} className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors py-1">← Retour à la connexion</button>
+                </form>
+              )}
+            </div>
           )}
 
           {onglet === 'inscription' && (
