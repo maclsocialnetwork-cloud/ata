@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { supabaseServiceRole } from '@/lib/supabase/service'
 import Navbar from '@/components/Navbar'
 import BoutonsTombola from './_components/BoutonsTombola'
+import BoutonsConcours from './_components/BoutonsConcours'
 
 const STATUT_CONFIG: Record<string, { label: string; classes: string }> = {
   brouillon: { label: 'Brouillon', classes: 'bg-gray-100 text-gray-600' },
@@ -266,13 +267,16 @@ export default async function PageOrganisateur() {
                       )}
                     </p>
                   </div>
-                  <div className="flex gap-2 shrink-0">
-                    <Link href={`/organisateur/questions/${c.id}`} className="rounded-xl border border-ata-blue text-ata-blue text-sm font-medium px-4 py-2 hover:bg-blue-50 transition-colors">
-                      Voir questions
-                    </Link>
-                    <Link href={`/organisateur/concours/${c.id}`} className="rounded-xl bg-ata-blue text-white text-sm font-medium px-4 py-2 hover:opacity-90 transition-opacity">
-                      Gérer
-                    </Link>
+                  <div className="flex flex-col gap-2 shrink-0 items-end">
+                    <div className="flex gap-2">
+                      <Link href={`/organisateur/questions/${c.id}`} className="rounded-xl border border-ata-blue text-ata-blue text-sm font-medium px-4 py-2 hover:bg-blue-50 transition-colors">
+                        Voir questions
+                      </Link>
+                      <Link href={`/organisateur/concours/${c.id}`} className="rounded-xl bg-ata-blue text-white text-sm font-medium px-4 py-2 hover:opacity-90 transition-opacity">
+                        Gérer
+                      </Link>
+                    </div>
+                    <BoutonsConcours id={c.id} titre={c.titre} />
                   </div>
                 </div>
               )
@@ -304,7 +308,7 @@ export default async function PageOrganisateur() {
                     </div>
                     <p className="text-xs text-gray-400 mt-1 truncate">Lot : {t.lot}</p>
                   </div>
-                  <BoutonsTombola id={t.id} archive={false} />
+                  <BoutonsTombola id={t.id} titre={t.titre} archive={false} />
                 </div>
               ))}
             </div>
@@ -327,7 +331,7 @@ export default async function PageOrganisateur() {
                     </div>
                     <p className="text-xs text-gray-400 mt-0.5 truncate">Lot : {t.lot}</p>
                   </div>
-                  <BoutonsTombola id={t.id} archive={true} />
+                  <BoutonsTombola id={t.id} titre={t.titre} archive={true} />
                 </div>
               ))}
             </div>
