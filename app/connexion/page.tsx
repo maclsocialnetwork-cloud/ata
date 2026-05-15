@@ -80,6 +80,7 @@ function ContenuConnexion() {
     if (mdpInscription !== mdpConfirmation) { setErreur('Les mots de passe ne correspondent pas.'); return }
     if (mdpInscription.length < 6) { setErreur('Le mot de passe doit contenir au moins 6 caractères.'); return }
     if (role === 'organisateur' && !nomOrganisation.trim()) { setErreur("Veuillez saisir le nom de votre organisation."); return }
+    if (!codeParrainage.trim()) { setErreur("Veuillez saisir un code de parrainage. Si vous n'en avez pas, utilisez le code officiel ATA : ATA310581MACL"); return }
 
     setChargement(true)
     const supabase = createClient()
@@ -198,18 +199,25 @@ function ContenuConnexion() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Code de parrainage{' '}
-                  <span className="text-gray-400 font-normal">(optionnel)</span>
+                  Code de parrainage <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
+                  required
                   value={codeParrainage}
                   onChange={e => setCodeParrainage(e.target.value.toUpperCase())}
-                  placeholder="Ex : ATA831047CHRI"
+                  placeholder="Ex : ATA310581MACL"
                   className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-blue font-mono tracking-wider"
                 />
                 <p className="text-xs text-gray-400 mt-1">
-                  Si quelqu'un vous a partagé son code, saisissez-le ici.
+                  Saisissez le code de votre parrain. Si vous n'en avez pas, utilisez le code officiel ATA :{' '}
+                  <button
+                    type="button"
+                    onClick={() => setCodeParrainage('ATA310581MACL')}
+                    className="font-mono font-semibold text-ata-blue hover:underline"
+                  >
+                    ATA310581MACL
+                  </button>
                 </p>
               </div>
 
