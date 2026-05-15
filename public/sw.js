@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ata-v2'
+const CACHE_NAME = 'ata-v3'
 const PRECACHE_URLS = ['/', '/connexion']
 
 self.addEventListener('install', event => {
@@ -20,6 +20,12 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // Ne gère que les requêtes GET vers la même origine
   if (event.request.method !== 'GET' || !event.request.url.startsWith(self.location.origin)) return
+
+  // Les navigations (F5, liens) vont toujours sur le réseau — jamais le cache
+  if (event.request.mode === 'navigate') {
+    event.respondWith(fetch(event.request))
+    return
+  }
 
   event.respondWith(
     caches.match(event.request).then(cached => {
