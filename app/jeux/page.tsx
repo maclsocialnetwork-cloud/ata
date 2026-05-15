@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { createClient } from '@/lib/supabase/server'
 import { supabaseServiceRole } from '@/lib/supabase/service'
 import Navbar from '@/components/Navbar'
@@ -50,7 +52,7 @@ export default async function PageJeux() {
       .gte('date_fin', maintenant)
       .order('date_debut', { ascending: true })
     if (error) console.error('[jeux] erreur concours:', error.message)
-    else console.log('[jeux] concours chargés:', data?.length ?? 0)
+    else console.log('[jeux] concours chargés:', data?.length ?? 0, data?.map(c => c.titre))
     concours = (data as unknown as Concours[]) ?? []
   } catch (err) {
     console.error('[jeux] exception concours:', err)
