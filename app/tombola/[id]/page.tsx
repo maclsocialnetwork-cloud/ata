@@ -27,7 +27,7 @@ export default async function PageTombola({
     supabaseServiceRole
       .from('tombola')
       .select(
-        'id, titre, description, lot, prix_ticket, date_debut, date_fin, statut, type_tombola, gagnant_user_id, numero_ticket_gagnant',
+        'id, titre, description, lot, prix_ticket, date_debut, date_fin, statut, type_tombola, gagnant_user_id, numero_ticket_gagnant, organisateurs(nom_organisation)',
       )
       .eq('id', id)
       .single()
@@ -94,6 +94,8 @@ export default async function PageTombola({
 
   // ── Label statut ────────────────────────────────────────────────────────
   const estParticipation = tombola.type_tombola === 'participation'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const nomOrganisation = (tombola as any).organisateurs?.nom_organisation as string | null ?? null
 
   const statutLabel = estParticipation
     ? 'À venir'
@@ -128,6 +130,14 @@ export default async function PageTombola({
             {tombola.titre}
           </h1>
 
+          {/* Nom de l'organisateur */}
+          {nomOrganisation && (
+            <p className="text-sm text-gray-500 -mt-2">
+              Organisé par{' '}
+              <span className="font-medium text-ata-orange">{nomOrganisation}</span>
+            </p>
+          )}
+
           {/* Description */}
           {tombola.description && (
             <p className="text-gray-600 leading-relaxed">{tombola.description}</p>
@@ -141,7 +151,8 @@ export default async function PageTombola({
             <p className="font-bold text-xl">{tombola.lot}</p>
           </div>
 
-          {/* Infos : prix + dates */}
+          {/* Infos : prix + dates — masqué si participation sans dates */}
+          {(!estParticipation || tombola.date_debut || tombola.date_fin) && (
           <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-3.5">
             {!estParticipation && (
               <>
@@ -165,9 +176,10 @@ export default async function PageTombola({
               </div>
             )}
           </div>
+          )}
 
-          {/* Compte à rebours (uniquement si pas terminée) */}
-          {tombola.statut !== 'terminee' && (
+          {/* Compte à rebours — masqué pour les tombolas participation (pas de date limite) */}
+          {tombola.statut !== 'terminee' && !estParticipation && (
             <div className="bg-ata-blue rounded-2xl px-6 py-5 flex flex-col items-center gap-1">
               <p className="text-xs text-blue-200 font-medium uppercase tracking-widest">
                 Ferme dans
