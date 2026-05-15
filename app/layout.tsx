@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     siteName: "ATA — Achat Tombola Afrique",
     images: [
       {
-        url: `${BASE_URL}/icons/icon-512x512.png`,
-        width: 512,
-        height: 512,
+        url: `${BASE_URL}/images/og-banner.png`,
+        width: 1200,
+        height: 630,
         alt: "ATA — Achat Tombola Afrique",
       },
     ],
@@ -29,10 +29,10 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "ATA — Achat Tombola Afrique",
     description: "Participez aux concours QCM et tombolas organisés par les entreprises africaines.",
-    images: [`${BASE_URL}/icons/icon-512x512.png`],
+    images: [`${BASE_URL}/images/og-banner.png`],
   },
 };
 
