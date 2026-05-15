@@ -13,7 +13,6 @@ type Concours = {
   description_lot: string | null
   duree_minutes: number
   date_debut: string
-  date_fin: string
   statut: string
 }
 
@@ -34,7 +33,6 @@ export default function FormulaireModification({ concours }: { concours: Concour
   const [descriptionLot, setDescriptionLot] = useState(concours.description_lot ?? '')
   const [dureeMinutes, setDureeMinutes] = useState(concours.duree_minutes)
   const [dateDebut, setDateDebut] = useState(toDatetimeLocal(concours.date_debut))
-  const [dateFin, setDateFin] = useState(toDatetimeLocal(concours.date_fin))
   const [statut, setStatut] = useState(concours.statut)
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -76,7 +74,6 @@ export default function FormulaireModification({ concours }: { concours: Concour
           description_lot: descriptionLot || null,
           duree_minutes: dureeMinutes,
           date_debut: dateDebut,
-          date_fin: dateFin,
           statut,
         }),
       })
@@ -172,31 +169,17 @@ export default function FormulaireModification({ concours }: { concours: Concour
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>
-              Date de début <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="datetime-local"
-              required
-              value={dateDebut}
-              onChange={e => setDateDebut(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass}>
-              Date de fin <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="datetime-local"
-              required
-              value={dateFin}
-              onChange={e => setDateFin(e.target.value)}
-              className={inputClass}
-            />
-          </div>
+        <div>
+          <label className={labelClass}>
+            Date de début <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="datetime-local"
+            required
+            value={dateDebut}
+            onChange={e => setDateDebut(e.target.value)}
+            className={inputClass}
+          />
         </div>
 
         <div>

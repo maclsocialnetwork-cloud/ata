@@ -59,11 +59,14 @@ export async function PUT(
   if (!organisateurId) return NextResponse.json({ erreur: 'Accès refusé' }, { status: 403 })
 
   const body = await req.json()
-  const { titre, description, photo_lot_url, description_lot, duree_minutes, date_debut, date_fin, statut } = body
+  const { titre, description, photo_lot_url, description_lot, duree_minutes, date_debut, statut } = body
 
-  if (!titre || !date_debut || !date_fin) {
-    return NextResponse.json({ erreur: 'Titre, date de début et date de fin sont requis' }, { status: 400 })
+  if (!titre || !date_debut) {
+    return NextResponse.json({ erreur: 'Titre et date de début sont requis' }, { status: 400 })
   }
+
+  const duree = Number(duree_minutes) || 20
+  const date_fin = new Date(new Date(date_debut).getTime() + duree * 60 * 1000).toISOString()
 
   const { error } = await supabase
     .from('concours')
@@ -72,7 +75,7 @@ export async function PUT(
       description: description || null,
       photo_lot_url: photo_lot_url || null,
       description_lot: description_lot || null,
-      duree_minutes: Number(duree_minutes) || 20,
+      duree_minutes: duree,
       date_debut,
       date_fin,
       statut,

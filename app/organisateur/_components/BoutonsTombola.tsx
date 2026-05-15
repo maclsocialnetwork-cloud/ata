@@ -68,11 +68,18 @@ export default function BoutonsTombola({ id, titre }: Props) {
           disabled={en_cours !== null}
           className="rounded-xl bg-ata-blue text-white text-xs font-semibold px-3 py-1.5 hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1"
         >
-          {en_cours ? '…' : 'Gérer ▼'}
+          {en_cours ? '…' : 'Gérer'}
         </button>
 
         {menuOuvert && (
           <div className="absolute right-0 top-full mt-1.5 z-50 bg-white border border-gray-200 rounded-xl shadow-lg py-1 min-w-[160px]">
+            <button
+              onClick={() => { setMenuOuvert(false); router.push(`/organisateur/tombola/${id}/modifier`) }}
+              className="w-full text-left flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              ✏️ Modifier
+            </button>
+            <div className="h-px bg-gray-100 my-1" />
             <button
               onClick={() => patcher({ archive: false, statut: 'active' }, 'activer')}
               className="w-full text-left flex items-center gap-2.5 px-4 py-2 text-sm text-green-700 hover:bg-green-50 transition-colors"
