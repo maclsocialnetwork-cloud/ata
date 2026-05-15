@@ -10,11 +10,11 @@ const inter = Inter({
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ata-macls-projects-ed759868.vercel.app'
 
 export const metadata: Metadata = {
-  title: "ATA — Achat Tombola Afrique",
-  description: "Participez aux concours QCM et tombolas organisés par les entreprises africaines.",
+  title: "ATA — Concours QCM et Tombolas en Afrique | Jouez et Gagnez",
+  description: "Participez aux concours QCM et tombolas organisés par des professionnels en Afrique. Chaque participation est une grâce donnée pour gagner un lot exceptionnel !",
   openGraph: {
-    title: "ATA — Achat Tombola Afrique",
-    description: "Participez aux concours QCM et tombolas organisés par les entreprises africaines.",
+    title: "ATA — Concours QCM et Tombolas en Afrique | Jouez et Gagnez",
+    description: "Participez aux concours QCM et tombolas organisés par des professionnels en Afrique. Chaque participation est une grâce donnée pour gagner un lot exceptionnel !",
     url: BASE_URL,
     siteName: "ATA — Achat Tombola Afrique",
     images: [
@@ -30,8 +30,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ATA — Achat Tombola Afrique",
-    description: "Participez aux concours QCM et tombolas organisés par les entreprises africaines.",
+    title: "ATA — Concours QCM et Tombolas en Afrique | Jouez et Gagnez",
+    description: "Participez aux concours QCM et tombolas organisés par des professionnels en Afrique. Chaque participation est une grâce donnée pour gagner un lot exceptionnel !",
     images: [`${BASE_URL}/images/og-banner.png`],
   },
 };
