@@ -28,6 +28,7 @@ function ContenuConnexion() {
   const [whatsapp, setWhatsapp] = useState('')
   const [mdpInscription, setMdpInscription] = useState('')
   const [mdpConfirmation, setMdpConfirmation] = useState('')
+  const [codeParrainage, setCodeParrainage] = useState(() => searchParams.get('ref') ?? '')
 
   function traduitErreurSupabase(message: string): string {
     if (message.includes('Invalid login credentials')) return 'Email ou mot de passe incorrect.'
@@ -70,7 +71,7 @@ function ContenuConnexion() {
       email: emailInscription,
       password: mdpInscription,
       options: {
-        data: { prenom, nom, whatsapp, role, nom_organisation: nomOrganisation.trim() || null },
+        data: { prenom, nom, whatsapp, role, nom_organisation: nomOrganisation.trim() || null, parraine_par: codeParrainage.trim() || null },
       },
     })
 
@@ -149,6 +150,23 @@ function ContenuConnexion() {
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label><input type="password" required value={mdpInscription} onChange={e => setMdpInscription(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-blue" /></div>
 
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe</label><input type="password" required value={mdpConfirmation} onChange={e => setMdpConfirmation(e.target.value)} placeholder="••••••••" className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-blue" /></div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Code de parrainage{' '}
+                  <span className="text-gray-400 font-normal">(optionnel)</span>
+                </label>
+                <input
+                  type="text"
+                  value={codeParrainage}
+                  onChange={e => setCodeParrainage(e.target.value.toUpperCase())}
+                  placeholder="Ex : ATA831047CHRI"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ata-blue font-mono tracking-wider"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  Si quelqu'un vous a partagé son code, saisissez-le ici.
+                </p>
+              </div>
 
               <button type="submit" disabled={chargement} className={`w-full text-white font-semibold rounded-lg py-3 text-sm hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed mt-2 ${role === 'organisateur' ? 'bg-ata-orange' : 'bg-ata-green'}`}>{chargement ? 'Création du compte…' : 'Créer mon compte'}</button>
             </form>
