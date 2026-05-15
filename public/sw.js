@@ -1,5 +1,5 @@
-const CACHE_NAME = 'ata-v1'
-const PRECACHE_URLS = ['/', '/jeux', '/connexion', '/mon-compte', '/organisateur']
+const CACHE_NAME = 'ata-v2'
+const PRECACHE_URLS = ['/', '/connexion']
 
 self.addEventListener('install', event => {
   event.waitUntil(
