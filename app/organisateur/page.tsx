@@ -308,7 +308,7 @@ export default async function PageOrganisateur() {
                     </div>
                     <p className="text-xs text-gray-400 mt-1 truncate">Lot : {t.lot}</p>
                   </div>
-                  <BoutonsTombola id={t.id} titre={t.titre} archive={false} />
+                  <BoutonsTombola id={t.id} titre={t.titre} />
                 </div>
               ))}
             </div>
@@ -331,7 +331,7 @@ export default async function PageOrganisateur() {
                     </div>
                     <p className="text-xs text-gray-400 mt-0.5 truncate">Lot : {t.lot}</p>
                   </div>
-                  <BoutonsTombola id={t.id} titre={t.titre} archive={true} />
+                  <BoutonsTombola id={t.id} titre={t.titre} />
                 </div>
               ))}
             </div>

@@ -24,15 +24,19 @@ export async function PATCH(
   if (!organisateurId) return NextResponse.json({ erreur: 'Organisateur introuvable' }, { status: 403 })
 
   const body = await req.json()
-  const { archive } = body
+  const { archive, statut } = body
 
-  if (typeof archive !== 'boolean') {
-    return NextResponse.json({ erreur: 'Champ "archive" requis (boolean)' }, { status: 400 })
+  const updates: Record<string, unknown> = {}
+  if (typeof archive === 'boolean') updates.archive = archive
+  if (typeof statut === 'string') updates.statut = statut
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ erreur: 'Aucun champ valide à mettre à jour' }, { status: 400 })
   }
 
   const { error } = await supabaseServiceRole
     .from('tombola')
-    .update({ archive })
+    .update(updates)
     .eq('id', id)
     .eq('organisateur_id', organisateurId)
 
