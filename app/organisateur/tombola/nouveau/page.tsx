@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/components/Navbar'
@@ -10,12 +10,28 @@ export default function PageNouvelleTombola() {
   const router = useRouter()
   const [chargement, setChargement] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
+  const [nomOrganisation, setNomOrganisation] = useState<string | null>(null)
 
   const [titre, setTitre] = useState('')
   const [description, setDescription] = useState('')
   const [lot, setLot] = useState('')
   const [photoFichier, setPhotoFichier] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchOrg() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data } = await supabase
+        .from('organisateurs')
+        .select('nom_organisation')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      setNomOrganisation(data?.nom_organisation ?? null)
+    }
+    fetchOrg()
+  }, [])
 
   function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -85,6 +101,13 @@ export default function PageNouvelleTombola() {
           </Link>
           <h1 className="text-2xl font-bold text-ata-blue">Nouvelle tombola à venir</h1>
         </div>
+
+        {nomOrganisation && (
+          <p className="text-sm text-gray-500 -mt-4 mb-2">
+            Organisé par :{' '}
+            <span className="font-semibold text-ata-blue">{nomOrganisation}</span>
+          </p>
+        )}
 
         <div className="mb-5 rounded-xl bg-purple-50 border border-purple-200 px-4 py-3 text-sm text-purple-800">
           Cette tombola sera de type <strong>participation</strong> — les utilisateurs peuvent exprimer
